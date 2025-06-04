@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -30,8 +29,6 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
 	}
-
-	fmt.Print("Request Body: ", req)
 
 	if err := ctx.Validate(req); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)

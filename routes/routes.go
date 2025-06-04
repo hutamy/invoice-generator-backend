@@ -51,4 +51,8 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	invoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
 	invoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
 	invoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
+
+	pdfService := services.NewPDFService(invoiceRepo, clientRepo)
+	pdfController := controllers.NewPDFController(pdfService)
+	invoiceRoutes.GET("/:id/pdf", pdfController.DownloadInvoicePDF)
 }

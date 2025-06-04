@@ -30,7 +30,7 @@ func (s *clientService) GetAllClientsByUserID(userID uint) ([]models.Client, err
 }
 
 func (s *clientService) GetClientByID(id, userID uint) (*models.Client, error) {
-	return s.clientRepo.GetByID(id, userID)
+	return s.clientRepo.GetClientByID(id, userID)
 }
 
 func (s *clientService) UpdateClient(client *models.Client) error {

@@ -8,7 +8,7 @@ import (
 type ClientRepository interface {
 	CreateClient(client *models.Client) error
 	GetAllByUserID(userID uint) ([]models.Client, error)
-	GetByID(id, userID uint) (*models.Client, error)
+	GetClientByID(id, userID uint) (*models.Client, error)
 	UpdateClient(client *models.Client) error
 	DeleteClient(id, userID uint) error
 }
@@ -35,7 +35,7 @@ func (r *clientRepository) GetAllByUserID(userID uint) ([]models.Client, error) 
 	return clients, nil
 }
 
-func (r *clientRepository) GetByID(id, userID uint) (*models.Client, error) {
+func (r *clientRepository) GetClientByID(id, userID uint) (*models.Client, error) {
 	var client models.Client
 	err := r.db.Where("id = ? AND user_id = ?", id, userID).First(&client).Error
 	if err != nil {
