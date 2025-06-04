@@ -58,10 +58,15 @@ func InitDB(dbUrl string) *gorm.DB {
 		log.Fatalf("failed to ping database: %v", err)
 	}
 
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
+	migrate(db)
+	return db
+}
+
+func migrate(db *gorm.DB) {
+	if err := db.AutoMigrate(
+		&models.User{},
+		&models.Client{},
+	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
-
-	return db
 }

@@ -1,0 +1,105 @@
+package controllers
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/hutamy/invoice-generator/models"
+	"github.com/hutamy/invoice-generator/services"
+	"github.com/hutamy/invoice-generator/utils"
+	"github.com/hutamy/invoice-generator/utils/errors"
+	"github.com/labstack/echo/v4"
+)
+
+type ClientController struct {
+	clientService services.ClientService
+}
+
+func NewClientController(clientService services.ClientService) *ClientController {
+	return &ClientController{clientService: clientService}
+}
+
+func (c *ClientController) CreateClient(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+
+	var client models.Client
+	if err := ctx.Bind(&client); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	client.UserID = userID
+	if err := c.clientService.CreateClient(&client); err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusCreated, "Client created successfully", nil)
+}
+
+func (c *ClientController) GetAllClients(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+
+	clients, err := c.clientService.GetAllClientsByUserID(userID)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Clients retrieved successfully", clients)
+}
+
+func (c *ClientController) GetClientByID(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	client, err := c.clientService.GetClientByID(uint(id), userID)
+	if err != nil {
+		if err == errors.ErrNotFound {
+			return utils.Response(ctx, http.StatusNotFound, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Client retrieved successfully", client)
+}
+
+func (c *ClientController) UpdateClient(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	var client models.Client
+	if err := ctx.Bind(&client); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	client.ID = uint(id)
+	client.UserID = userID
+	if err := c.clientService.UpdateClient(&client); err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Client updated successfully", nil)
+}
+
+func (c *ClientController) DeleteClient(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := c.clientService.DeleteClient(uint(id), userID); err != nil {
+		if err == errors.ErrNotFound {
+			return utils.Response(ctx, http.StatusNotFound, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Client deleted successfully", nil)
+}

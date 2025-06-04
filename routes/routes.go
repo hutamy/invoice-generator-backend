@@ -32,4 +32,14 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	protected := e.Group("/v1")
 	protected.Use(middleware.JWTMiddleware)
 	protected.GET("/me", authController.Me)
+
+	clientRoutes := protected.Group("/clients")
+	clientRepo := repositories.NewClientRepository(db)
+	clientService := services.NewClientService(clientRepo)
+	clientController := controllers.NewClientController(clientService)
+	clientRoutes.POST("", clientController.CreateClient)
+	clientRoutes.GET("", clientController.GetAllClients)
+	clientRoutes.GET("/:id", clientController.GetClientByID)
+	clientRoutes.PUT("/:id", clientController.UpdateClient)
+	clientRoutes.DELETE("/:id", clientController.DeleteClient)
 }
