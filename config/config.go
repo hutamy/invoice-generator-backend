@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/caarlos0/env"
+	"github.com/hutamy/invoice-generator/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -53,6 +54,11 @@ func InitDB(dbUrl string) *gorm.DB {
 
 	if err := sqlDB.Ping(); err != nil {
 		log.Fatalf("failed to ping database: %v", err)
+	}
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
 	}
 
 	return db

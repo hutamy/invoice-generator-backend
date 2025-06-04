@@ -1,0 +1,75 @@
+package controllers
+
+import (
+	"net/http"
+
+	"github.com/hutamy/invoice-generator/services"
+	"github.com/hutamy/invoice-generator/utils"
+	"github.com/hutamy/invoice-generator/utils/errors"
+	"github.com/labstack/echo/v4"
+)
+
+type AuthController struct {
+	authService services.AuthService
+}
+
+func NewAuthController(authService services.AuthService) *AuthController {
+	return &AuthController{authService: authService}
+}
+
+type SignUpRequest struct {
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type SignInRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+func (c *AuthController) SignUp(ctx echo.Context) error {
+	req := new(SignUpRequest)
+	if err := ctx.Bind(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := ctx.Validate(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	err := c.authService.SignUp(req.Name, req.Email, req.Password)
+	if err != nil {
+		if err == errors.ErrUserAlreadyExists {
+			return utils.Response(ctx, http.StatusConflict, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusCreated, "User created successfully", nil)
+}
+
+func (c *AuthController) SignIn(ctx echo.Context) error {
+	req := new(SignInRequest)
+	if err := ctx.Bind(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := ctx.Validate(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	user, err := c.authService.SignIn(req.Email, req.Password)
+	if err != nil {
+		if err == errors.ErrLoginFailed {
+			return utils.Response(ctx, http.StatusUnauthorized, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	// Hide password before returning user info
+	user.Password = ""
+	return utils.Response(ctx, http.StatusOK, "Sign In successful", user)
+}

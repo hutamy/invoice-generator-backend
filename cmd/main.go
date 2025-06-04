@@ -4,10 +4,20 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/hutamy/invoice-generator/config"
 	"github.com/hutamy/invoice-generator/routes"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
+}
 
 func main() {
 	cfg := config.LoadEnv()
@@ -21,6 +31,10 @@ func main() {
 	db := config.InitDB(dbUrl)
 
 	e := echo.New()
+	e.Validator = &CustomValidator{validator: validator.New()}
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	routes.InitRoutes(e, db)
 
 	log.Printf("Starting server on port: %d", cfg.Port)
