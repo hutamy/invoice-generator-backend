@@ -83,3 +83,24 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 		},
 	})
 }
+
+func (c *AuthController) Me(ctx echo.Context) error {
+	userID, ok := ctx.Get("user_id").(uint)
+	if !ok {
+		return utils.Response(ctx, http.StatusUnauthorized, errors.ErrUnauthorized.Error(), nil)
+	}
+
+	user, err := c.authService.GetUserByID(userID)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+	if user == nil {
+		return utils.Response(ctx, http.StatusNotFound, errors.ErrNotFound.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "User retrieved successfully", echo.Map{
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+	})
+}

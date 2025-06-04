@@ -8,4 +8,6 @@ var (
 	ErrBadRequest          = e.New("please check your input")
 	ErrFailedGenerateToken = e.New("failed to generate token")
 	ErrInvalidToken        = e.New("invalid token")
+	ErrUnauthorized        = e.New("unauthorized access")
+	ErrNotFound            = e.New("resource not found")
 )

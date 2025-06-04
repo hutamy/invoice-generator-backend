@@ -10,6 +10,7 @@ import (
 type AuthService interface {
 	SignUp(name, email, password string) error
 	SignIn(email, password string) (models.User, error)
+	GetUserByID(id uint) (*models.User, error)
 }
 
 type authService struct {
@@ -58,4 +59,8 @@ func (s *authService) SignIn(email, password string) (models.User, error) {
 	}
 
 	return *user, nil
+}
+
+func (s *authService) GetUserByID(id uint) (*models.User, error) {
+	return s.authRepo.GetUserByID(id)
 }

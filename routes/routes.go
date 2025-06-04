@@ -31,10 +31,5 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 
 	protected := e.Group("/v1")
 	protected.Use(middleware.JWTMiddleware)
-	protected.GET("/me", func(c echo.Context) error {
-		userID := c.Get("user_id").(uint)
-		return utils.Response(c, 200, "User retrieved successfully", echo.Map{
-			"user_id": userID,
-		})
-	})
+	protected.GET("/me", authController.Me)
 }
