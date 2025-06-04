@@ -10,4 +10,5 @@ var (
 	ErrInvalidToken        = e.New("invalid token")
 	ErrUnauthorized        = e.New("unauthorized access")
 	ErrNotFound            = e.New("resource not found")
+	ErrInvalidDateFormat   = e.New("invalid date format, expected YYYY-MM-DD")
 )

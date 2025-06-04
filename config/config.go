@@ -66,6 +66,8 @@ func migrate(db *gorm.DB) {
 	if err := db.AutoMigrate(
 		&models.User{},
 		&models.Client{},
+		&models.Invoice{},
+		&models.InvoiceItem{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

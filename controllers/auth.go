@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/hutamy/invoice-generator/dto"
 	"github.com/hutamy/invoice-generator/services"
 	"github.com/hutamy/invoice-generator/utils"
 	"github.com/hutamy/invoice-generator/utils/errors"
@@ -17,19 +18,8 @@ func NewAuthController(authService services.AuthService) *AuthController {
 	return &AuthController{authService: authService}
 }
 
-type SignUpRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
-type SignInRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
 func (c *AuthController) SignUp(ctx echo.Context) error {
-	req := new(SignUpRequest)
+	req := new(dto.SignUpRequest)
 	if err := ctx.Bind(req); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
 	}
@@ -51,7 +41,7 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 }
 
 func (c *AuthController) SignIn(ctx echo.Context) error {
-	req := new(SignInRequest)
+	req := new(dto.SignInRequest)
 	if err := ctx.Bind(req); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
 	}
