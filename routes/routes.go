@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/hutamy/invoice-generator/controllers"
+	"github.com/hutamy/invoice-generator/middleware"
 	"github.com/hutamy/invoice-generator/repositories"
 	"github.com/hutamy/invoice-generator/services"
 	"github.com/hutamy/invoice-generator/utils"
@@ -27,4 +28,13 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	authController := controllers.NewAuthController(authService)
 	e.POST("/v1/auth/sign-up", authController.SignUp)
 	e.POST("/v1/auth/sign-in", authController.SignIn)
+
+	protected := e.Group("/v1")
+	protected.Use(middleware.JWTMiddleware)
+	protected.GET("/me", func(c echo.Context) error {
+		userID := c.Get("user_id").(uint)
+		return utils.Response(c, 200, "User retrieved successfully", echo.Map{
+			"user_id": userID,
+		})
+	})
 }

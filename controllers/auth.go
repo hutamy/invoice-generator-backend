@@ -69,7 +69,17 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	// Hide password before returning user info
-	user.Password = ""
-	return utils.Response(ctx, http.StatusOK, "Sign In successful", user)
+	token, err := utils.GenerateJWT(user.ID)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Sign In successful", echo.Map{
+		"token": token,
+		"user": echo.Map{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+		},
+	})
 }

@@ -13,6 +13,8 @@ import (
 type Config struct {
 	Port int `env:"PORT" envDefault:"8080"`
 
+	JwtSecret string `env:"JWT_SECRET"`
+
 	PostgresUser     string `env:"POSTGRES_USER"`
 	PostgresPassword string `env:"POSTGRES_PASSWORD"`
 	PostgresHost     string `env:"POSTGRES_HOST"`
