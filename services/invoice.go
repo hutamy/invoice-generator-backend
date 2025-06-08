@@ -34,7 +34,7 @@ func (s *invoiceService) CreateInvoice(invoice *models.Invoice) error {
 	}
 
 	invoice.Subtotal = subtotal
-	invoice.Tax = invoice.Tax * subtotal / 100
+	invoice.Tax = invoice.TaxRate * subtotal / 100
 	invoice.Total = invoice.Subtotal + invoice.Tax
 	invoice.Status = "draft" // Default status for new invoices
 	invoice.IssueDate = time.Now()

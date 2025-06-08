@@ -12,7 +12,7 @@ type CreateInvoiceRequest struct {
 	Items    []InvoiceItemRequest `json:"items" validate:"required,dive"`
 	Notes    string               `json:"notes"`
 	Currency string               `json:"currency" validate:"required,oneof=USD EUR IDR"`
-	Tax      float64              `json:"tax" validate:"required"`
+	TaxRate  float64              `json:"tax_rate" validate:"required"`
 }
 
 type InvoiceItemUpdateRequest struct {
@@ -28,6 +28,6 @@ type UpdateInvoiceRequest struct {
 	Notes    *string                    `json:"notes,omitempty"`
 	Status   *string                    `json:"status,omitempty"`
 	Currency *string                    `json:"currency,omitempty"`
-	Tax      *float64                   `json:"tax,omitempty"`
+	TaxRate  *float64                   `json:"tax_rate,omitempty"`
 	Items    []InvoiceItemUpdateRequest `json:"items,omitempty"`
 }

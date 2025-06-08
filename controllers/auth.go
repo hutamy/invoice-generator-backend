@@ -28,7 +28,7 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	err := c.authService.SignUp(req.Name, req.Email, req.Password)
+	err := c.authService.SignUp(req.Name, req.Email, req.Password, req.Address, req.Phone)
 	if err != nil {
 		if err == errors.ErrUserAlreadyExists {
 			return utils.Response(ctx, http.StatusConflict, err.Error(), nil)

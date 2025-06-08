@@ -2,11 +2,13 @@ package services
 
 import (
 	"bytes"
-	"fmt"
-	"time"
+	"context"
+	"html/template"
+	"strconv"
 
+	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/chromedp"
 	"github.com/hutamy/invoice-generator/repositories"
-	"github.com/jung-kurt/gofpdf"
 )
 
 type PDFService interface {
@@ -16,50 +18,75 @@ type PDFService interface {
 type pdfService struct {
 	invoiceRepo repositories.InvoiceRepository
 	clientRepo  repositories.ClientRepository
+	authRepo    repositories.AuthRepository
 }
 
-func NewPDFService(invoiceRepo repositories.InvoiceRepository, clientRepo repositories.ClientRepository) PDFService {
+func NewPDFService(
+	invoiceRepo repositories.InvoiceRepository,
+	clientRepo repositories.ClientRepository,
+	authRepo repositories.AuthRepository,
+) PDFService {
 	return &pdfService{
 		invoiceRepo: invoiceRepo,
 		clientRepo:  clientRepo,
+		authRepo:    authRepo,
 	}
 }
 
 func (s *pdfService) GenerateInvoicePDF(invoiceID uint) ([]byte, error) {
-	inv, err := s.invoiceRepo.GetInvoiceByID(invoiceID)
+	invoice, err := s.invoiceRepo.GetInvoiceByID(invoiceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get invoice: %w", err)
-	}
-
-	client, err := s.clientRepo.GetClientByID(inv.ClientID, inv.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get client: %w", err)
-	}
-
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	pdf.SetFont("Arial", "B", 16)
-
-	pdf.Cell(40, 10, "Invoice")
-	pdf.Ln(20)
-
-	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(40, 10, fmt.Sprintf("Invoice ID: %d", inv.ID))
-	pdf.Ln(10)
-	pdf.Cell(40, 10, fmt.Sprintf("Client: %s", client.Name))
-	pdf.Ln(10)
-	pdf.Cell(40, 10, fmt.Sprintf("Amount: %.2f", inv.Subtotal))
-	pdf.Ln(10)
-	pdf.Cell(40, 10, fmt.Sprintf("Due Date: %s", inv.DueDate.Format("2006-01-02")))
-	pdf.Ln(10)
-	pdf.Cell(40, 10, fmt.Sprintf("Status: %s", inv.Status))
-	pdf.Ln(10)
-	pdf.Cell(40, 10, fmt.Sprintf("Created At: %s", inv.CreatedAt.Format(time.RFC1123)))
-
-	var buf bytes.Buffer
-	if err := pdf.Output(&buf); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	client, err := s.clientRepo.GetClientByID(invoice.ClientID, invoice.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.authRepo.GetUserByID(invoice.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load HTML template
+	tmpl, err := template.ParseFiles("templates/invoice.html")
+	if err != nil {
+		return nil, err
+	}
+
+	var htmlBuf bytes.Buffer
+	err = tmpl.Execute(&htmlBuf, map[string]interface{}{
+		"Invoice": invoice,
+		"Client":  client,
+		"User":    user,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup headless browser
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	var pdfBuf []byte
+	htmlContent := htmlBuf.String()
+	err = chromedp.Run(ctx,
+		chromedp.Navigate("about:blank"),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			// Set the HTML content directly
+			// Set the HTML content using JavaScript evaluation
+			return chromedp.Evaluate(`document.documentElement.innerHTML = `+strconv.Quote(htmlContent), nil).Do(ctx)
+		}),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			pdfBuf, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
+			return err
+		}),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return pdfBuf, nil
 }

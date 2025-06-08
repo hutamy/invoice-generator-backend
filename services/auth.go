@@ -8,7 +8,7 @@ import (
 )
 
 type AuthService interface {
-	SignUp(name, email, password string) error
+	SignUp(name, email, password, address, phone string) error
 	SignIn(email, password string) (models.User, error)
 	GetUserByID(id uint) (*models.User, error)
 }
@@ -21,7 +21,7 @@ func NewAuthService(authRepo repositories.AuthRepository) AuthService {
 	return &authService{authRepo: authRepo}
 }
 
-func (s *authService) SignUp(name, email, password string) error {
+func (s *authService) SignUp(name, email, password, address, phone string) error {
 	existingUser, err := s.authRepo.GetUserByEmail(email)
 	if err != nil {
 		return err
@@ -40,6 +40,8 @@ func (s *authService) SignUp(name, email, password string) error {
 		Name:     name,
 		Email:    email,
 		Password: string(hashedPassword),
+		Address:  address,
+		Phone:    phone,
 	}
 
 	return s.authRepo.CreateUser(user)

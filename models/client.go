@@ -11,7 +11,6 @@ type Client struct {
 	UserID    uint           `json:"user_id" gorm:"not null;index"`
 	Name      string         `json:"name" gorm:"not null;"`
 	Email     string         `json:"email"`
-	Company   string         `json:"company"`
 	Phone     string         `json:"phone"`
 	Address   string         `json:"address"`
 	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`

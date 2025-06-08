@@ -34,6 +34,7 @@ func (r *invoiceRepository) GetInvoiceByID(id uint) (*models.Invoice, error) {
 	if err := r.db.Preload("Items").First(&invoice, id).Error; err != nil {
 		return nil, err
 	}
+
 	return &invoice, nil
 }
 
@@ -75,8 +76,8 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		invoice.Currency = *req.Currency
 	}
 
-	if req.Tax != nil {
-		invoice.Tax = *req.Tax
+	if req.TaxRate != nil {
+		invoice.TaxRate = *req.TaxRate
 	}
 
 	// Map existing items by ID
@@ -139,7 +140,7 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 	}
 
 	invoice.Subtotal = subtotal
-	invoice.Tax = invoice.Tax * subtotal / 100
+	invoice.Tax = invoice.TaxRate * subtotal / 100
 	invoice.Total = invoice.Subtotal + invoice.Tax
 	return r.db.Save(&invoice).Error
 }

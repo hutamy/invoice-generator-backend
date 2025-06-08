@@ -47,7 +47,7 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 		Notes:    req.Notes,
 		Status:   "draft", // default status
 		Currency: req.Currency,
-		Tax:      req.Tax,
+		TaxRate:  req.TaxRate,
 	}
 
 	for _, item := range req.Items {
