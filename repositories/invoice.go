@@ -71,6 +71,14 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		invoice.Status = *req.Status
 	}
 
+	if req.Currency != nil {
+		invoice.Currency = *req.Currency
+	}
+
+	if req.Tax != nil {
+		invoice.Tax = *req.Tax
+	}
+
 	// Map existing items by ID
 	existingItems := map[uint]models.InvoiceItem{}
 	for _, item := range invoice.Items {
@@ -79,13 +87,16 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 
 	// Track IDs from request to keep
 	var idsToKeep []uint
+	var subtotal float64
 	for _, itemReq := range req.Items {
 		if itemReq.ID != nil {
 			// Update existing item
 			if existingItem, ok := existingItems[*itemReq.ID]; ok {
-				existingItem.Name = itemReq.Name
+				existingItem.Description = itemReq.Description
 				existingItem.Quantity = itemReq.Quantity
 				existingItem.UnitPrice = itemReq.UnitPrice
+				existingItem.Total = float64(itemReq.Quantity) * itemReq.UnitPrice
+				subtotal += existingItem.Total
 				if err := r.db.Save(&existingItem).Error; err != nil {
 					return err
 				}
@@ -97,11 +108,13 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		} else {
 			// New item to create
 			newItem := models.InvoiceItem{
-				InvoiceID: invoice.ID,
-				Name:      itemReq.Name,
-				Quantity:  itemReq.Quantity,
-				UnitPrice: itemReq.UnitPrice,
+				InvoiceID:   invoice.ID,
+				Description: itemReq.Description,
+				Quantity:    itemReq.Quantity,
+				UnitPrice:   itemReq.UnitPrice,
 			}
+			newItem.Total = float64(itemReq.Quantity) * itemReq.UnitPrice
+			subtotal += newItem.Total
 			if err := r.db.Create(&newItem).Error; err != nil {
 				return err
 			}
@@ -125,5 +138,8 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		}
 	}
 
+	invoice.Subtotal = subtotal
+	invoice.Tax = invoice.Tax * subtotal / 100
+	invoice.Total = invoice.Subtotal + invoice.Tax
 	return r.db.Save(&invoice).Error
 }

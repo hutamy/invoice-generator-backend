@@ -46,13 +46,15 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 		DueDate:  dueDate,
 		Notes:    req.Notes,
 		Status:   "draft", // default status
+		Currency: req.Currency,
+		Tax:      req.Tax,
 	}
 
 	for _, item := range req.Items {
 		invoice.Items = append(invoice.Items, models.InvoiceItem{
-			Name:      item.Name,
-			Quantity:  item.Quantity,
-			UnitPrice: item.UnitPrice,
+			Description: item.Description,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
 		})
 	}
 	if err := c.invoiceService.CreateInvoice(&invoice); err != nil {

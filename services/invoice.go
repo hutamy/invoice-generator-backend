@@ -34,11 +34,10 @@ func (s *invoiceService) CreateInvoice(invoice *models.Invoice) error {
 	}
 
 	invoice.Subtotal = subtotal
-	invoice.Tax = subtotal * 0.1 // Assuming a fixed tax rate of 10%
+	invoice.Tax = invoice.Tax * subtotal / 100
 	invoice.Total = invoice.Subtotal + invoice.Tax
 	invoice.Status = "draft" // Default status for new invoices
 	invoice.IssueDate = time.Now()
-
 	return s.invoiceRepo.CreateInvoice(invoice)
 }
 

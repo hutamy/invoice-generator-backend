@@ -10,7 +10,7 @@ type Client struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	UserID    uint           `json:"user_id" gorm:"not null;index"`
 	Name      string         `json:"name" gorm:"not null;"`
-	Email     string         `json:"email" gorm:"not null;"`
+	Email     string         `json:"email"`
 	Company   string         `json:"company"`
 	Phone     string         `json:"phone"`
 	Address   string         `json:"address"`
