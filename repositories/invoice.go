@@ -80,6 +80,10 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		invoice.TaxRate = *req.TaxRate
 	}
 
+	if req.InvoiceNumber != nil {
+		invoice.InvoiceNumber = *req.InvoiceNumber
+	}
+
 	// Map existing items by ID
 	existingItems := map[uint]models.InvoiceItem{}
 	for _, item := range invoice.Items {

@@ -41,13 +41,14 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 	}
 
 	invoice := models.Invoice{
-		UserID:   userID,
-		ClientID: req.ClientID,
-		DueDate:  dueDate,
-		Notes:    req.Notes,
-		Status:   "draft", // default status
-		Currency: req.Currency,
-		TaxRate:  req.TaxRate,
+		UserID:        userID,
+		InvoiceNumber: req.InvoiceNumber,
+		ClientID:      req.ClientID,
+		DueDate:       dueDate,
+		Notes:         req.Notes,
+		Status:        "draft", // default status
+		Currency:      req.Currency,
+		TaxRate:       req.TaxRate,
 	}
 
 	for _, item := range req.Items {
