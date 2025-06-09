@@ -13,7 +13,7 @@ type CreateInvoiceRequest struct {
 	Notes         string               `json:"notes"`
 	InvoiceNumber string               `json:"invoice_number" validate:"required"`
 	Currency      string               `json:"currency" validate:"required,oneof=USD EUR IDR"`
-	TaxRate       float64              `json:"tax_rate" validate:"required"`
+	TaxRate       float64              `json:"tax_rate"`
 }
 
 type InvoiceItemUpdateRequest struct {
