@@ -47,15 +47,13 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 
 	invoiceRoutes := protected.Group("/invoices")
 	invoiceRepo := repositories.NewInvoiceRepository(db)
-	invoiceService := services.NewInvoiceService(invoiceRepo)
+	invoiceService := services.NewInvoiceService(invoiceRepo, clientRepo, authRepo)
 	invoiceController := controllers.NewInvoiceController(invoiceService)
 	invoiceRoutes.POST("", invoiceController.CreateInvoice)
 	invoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
 	invoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
 	invoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
 
-	pdfService := services.NewPDFService(invoiceRepo, clientRepo, authRepo)
-	pdfController := controllers.NewPDFController(pdfService)
-	e.GET("/v1/invoices/:id/pdf", pdfController.DownloadInvoicePDF)
+	e.GET("/v1/invoices/:id/pdf", invoiceController.DownloadInvoicePDF)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 }

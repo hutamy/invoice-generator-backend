@@ -163,3 +163,32 @@ func (c *InvoiceController) UpdateInvoice(ctx echo.Context) error {
 
 	return utils.Response(ctx, http.StatusOK, "Invoice updated successfully", nil)
 }
+
+// DownloadInvoicePDF godoc
+// @Summary      Download invoice PDF
+// @Description  Generates and downloads the PDF for a given invoice ID
+// @Tags         invoices
+// @Produce      application/pdf
+// @Param        id   path      int  true  "Invoice ID"
+// @Success      200  {file}    file
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/invoices/{id}/pdf [get]
+func (c *InvoiceController) DownloadInvoicePDF(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	pdfData, err := c.invoiceService.GenerateInvoicePDF(uint(id))
+	if err != nil {
+		if e.Is(err, errors.ErrNotFound) {
+			return utils.Response(ctx, http.StatusNotFound, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, "Failed to generate PDF", nil)
+	}
+
+	return ctx.Blob(http.StatusOK, "application/pdf", pdfData)
+}
