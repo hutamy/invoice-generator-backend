@@ -44,7 +44,7 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	authRoutes.POST("/sign-in", authController.SignIn)
 
 	publicInvoiceRoutes := public.Group("/invoices")
-	publicInvoiceRoutes.GET("/:id/pdf", invoiceController.DownloadInvoicePDF)
+
 	publicInvoiceRoutes.POST("/generate-pdf", invoiceController.GeneratePublicInvoice)
 
 	protected := v1.Group("/protected")
@@ -58,9 +58,10 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	clientRoutes.PUT("/:id", clientController.UpdateClient)
 	clientRoutes.DELETE("/:id", clientController.DeleteClient)
 
-	invoiceRoutes := protected.Group("/invoices")
-	invoiceRoutes.POST("", invoiceController.CreateInvoice)
-	invoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
-	invoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
-	invoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
+	protectedInvoiceRoutes := protected.Group("/invoices")
+	protectedInvoiceRoutes.POST("", invoiceController.CreateInvoice)
+	protectedInvoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
+	protectedInvoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
+	protectedInvoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
+	protectedInvoiceRoutes.POST("/:id/pdf", invoiceController.DownloadInvoicePDF)
 }

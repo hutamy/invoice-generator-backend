@@ -174,7 +174,7 @@ func (c *InvoiceController) UpdateInvoice(ctx echo.Context) error {
 // @Failure      400  {object}  utils.GenericResponse
 // @Failure      404  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/public/invoices/{id}/pdf [get]
+// @Router       /v1/protectted/invoices/{id}/pdf [post]
 func (c *InvoiceController) DownloadInvoicePDF(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
