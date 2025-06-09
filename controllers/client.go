@@ -29,7 +29,7 @@ func NewClientController(clientService services.ClientService) *ClientController
 // @Success      201     {object}  utils.GenericResponse
 // @Failure      400     {object}  utils.GenericResponse
 // @Failure      500     {object}  utils.GenericResponse
-// @Router       /v1/clients [post]
+// @Router       /v1/protected/clients [post]
 func (c *ClientController) CreateClient(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
@@ -53,7 +53,7 @@ func (c *ClientController) CreateClient(ctx echo.Context) error {
 // @Security     BearerAuth
 // @Success      200  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/clients [get]
+// @Router       /v1/protected/clients [get]
 func (c *ClientController) GetAllClients(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
@@ -75,7 +75,7 @@ func (c *ClientController) GetAllClients(ctx echo.Context) error {
 // @Failure      400  {object}  utils.GenericResponse
 // @Failure      404  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/clients/{id} [get]
+// @Router       /v1/protected/clients/{id} [get]
 func (c *ClientController) GetClientByID(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -106,7 +106,7 @@ func (c *ClientController) GetClientByID(ctx echo.Context) error {
 // @Success      200     {object}  utils.GenericResponse
 // @Failure      400     {object}  utils.GenericResponse
 // @Failure      500     {object}  utils.GenericResponse
-// @Router       /v1/clients/{id} [put]
+// @Router       /v1/protected/clients/{id} [put]
 func (c *ClientController) UpdateClient(ctx echo.Context) error {
 	var client dto.UpdateClientRequest
 	if err := ctx.Bind(&client); err != nil {
@@ -131,7 +131,7 @@ func (c *ClientController) UpdateClient(ctx echo.Context) error {
 // @Failure      400  {object}  utils.GenericResponse
 // @Failure      404  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/clients/{id} [delete]
+// @Router       /v1/protected/clients/{id} [delete]
 func (c *ClientController) DeleteClient(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 	id, err := strconv.Atoi(ctx.Param("id"))

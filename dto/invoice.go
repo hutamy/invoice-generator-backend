@@ -33,3 +33,29 @@ type UpdateInvoiceRequest struct {
 	InvoiceNumber *string                    `json:"invoice_number,omitempty"`
 	Items         []InvoiceItemUpdateRequest `json:"items,omitempty"`
 }
+
+type GeneratePublicInvoiceRequest struct {
+	InvoiceNumber string                     `json:"invoice_number" validate:"required"`
+	IssueDate     string                     `json:"issue_date" validate:"required"`
+	DueDate       string                     `json:"due_date" validate:"required"`
+	Currency      string                     `json:"currency" validate:"required,oneof=USD EUR IDR"`
+	Sender        SenderRequest              `json:"sender" validate:"required"`
+	Recipient     SenderRecipientRequest     `json:"recipient" validate:"required"`
+	Items         []InvoiceItemUpdateRequest `json:"items,omitempty"`
+	TaxRate       *float64                   `json:"tax_rate,omitempty"`
+	Notes         string                     `json:"notes"`
+}
+
+type SenderRequest struct {
+	SenderRecipientRequest
+	BankName          string `json:"bank_name" validate:"required"`
+	BankAccountName   string `json:"bank_account_name" validate:"required"`
+	BankAccountNumber string `json:"bank_account_number" validate:"required"`
+}
+
+type SenderRecipientRequest struct {
+	Name    string `json:"name" validate:"required"`
+	Address string `json:"address" validate:"required"`
+	Email   string `json:"email" validate:"email"`
+	Phone   string `json:"phone"`
+}

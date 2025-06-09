@@ -46,6 +46,40 @@ definitions:
     - items
     - tax_rate
     type: object
+  dto.GeneratePublicInvoiceRequest:
+    properties:
+      currency:
+        enum:
+        - USD
+        - EUR
+        - IDR
+        type: string
+      due_date:
+        type: string
+      invoice_number:
+        type: string
+      issue_date:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.InvoiceItemUpdateRequest'
+        type: array
+      notes:
+        type: string
+      recipient:
+        $ref: '#/definitions/dto.SenderRecipientRequest'
+      sender:
+        $ref: '#/definitions/dto.SenderRequest'
+      tax_rate:
+        type: number
+    required:
+    - currency
+    - due_date
+    - invoice_number
+    - issue_date
+    - recipient
+    - sender
+    type: object
   dto.InvoiceItemRequest:
     properties:
       description:
@@ -75,6 +109,43 @@ definitions:
     - description
     - quantity
     - unit_price
+    type: object
+  dto.SenderRecipientRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - name
+    type: object
+  dto.SenderRequest:
+    properties:
+      address:
+        type: string
+      bank_account_name:
+        type: string
+      bank_account_number:
+        type: string
+      bank_name:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - bank_account_name
+    - bank_account_number
+    - bank_name
+    - name
     type: object
   dto.SignInRequest:
     properties:
@@ -167,75 +238,7 @@ info:
   title: Smart Invoice Generator API
   version: "1.0"
 paths:
-  /v1/auth/sign-in:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate user and return JWT token
-      parameters:
-      - description: Sign In Request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SignInRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-      summary: User Sign In
-      tags:
-      - auth
-  /v1/auth/sign-up:
-    post:
-      consumes:
-      - application/json
-      description: Register a new user
-      parameters:
-      - description: Sign Up Request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SignUpRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.GenericResponse'
-      summary: User Sign Up
-      tags:
-      - auth
-  /v1/clients:
+  /v1/protected/clients:
     get:
       description: Retrieves all clients for the authenticated user
       produces:
@@ -285,7 +288,7 @@ paths:
       summary: Create a new client
       tags:
       - clients
-  /v1/clients/{id}:
+  /v1/protected/clients/{id}:
     delete:
       description: Deletes a client by its ID for the authenticated user
       parameters:
@@ -386,7 +389,7 @@ paths:
       summary: Update client
       tags:
       - clients
-  /v1/invoices:
+  /v1/protected/invoices:
     get:
       consumes:
       - application/json
@@ -438,7 +441,7 @@ paths:
       summary: Create a new invoice
       tags:
       - invoices
-  /v1/invoices/{id}:
+  /v1/protected/invoices/{id}:
     get:
       consumes:
       - application/json
@@ -513,7 +516,102 @@ paths:
       summary: Update an invoice
       tags:
       - invoices
-  /v1/invoices/{id}/pdf:
+  /v1/protected/me:
+    get:
+      description: Get details of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Current User
+      tags:
+      - auth
+  /v1/public/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Sign In Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      summary: User Sign In
+      tags:
+      - auth
+  /v1/public/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Sign Up Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      summary: User Sign Up
+      tags:
+      - auth
+  /v1/public/invoices/{id}/pdf:
     get:
       description: Generates and downloads the PDF for a given invoice ID
       parameters:
@@ -544,18 +642,25 @@ paths:
       summary: Download invoice PDF
       tags:
       - invoices
-  /v1/me:
-    get:
-      description: Get details of the authenticated user
+  /v1/public/invoices/generate-pdf:
+    post:
+      description: Generates and downloads the PDF for a given invoice ID
+      parameters:
+      - description: Invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GeneratePublicInvoiceRequest'
       produces:
-      - application/json
+      - application/pdf
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/utils.GenericResponse'
-        "401":
-          description: Unauthorized
+            type: file
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/utils.GenericResponse'
         "404":
@@ -566,11 +671,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.GenericResponse'
-      security:
-      - BearerAuth: []
-      summary: Get Current User
+      summary: Download invoice PDF
       tags:
-      - auth
+      - invoices
 securityDefinitions:
   BearerAuth:
     in: header

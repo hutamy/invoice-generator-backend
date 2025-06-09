@@ -9,3 +9,6 @@ up:
 
 down:
 	docker compose down
+
+swagger:
+	swag init --generalInfo cmd/main.go --output docs

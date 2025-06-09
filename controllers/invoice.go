@@ -34,7 +34,7 @@ func NewInvoiceController(invoiceService services.InvoiceService) *InvoiceContro
 // @Success      201      {object}  utils.GenericResponse
 // @Failure      400      {object}  utils.GenericResponse
 // @Failure      500      {object}  utils.GenericResponse
-// @Router       /v1/invoices [post]
+// @Router       /v1/protected/invoices [post]
 func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 	var req dto.CreateInvoiceRequest
 	if err := ctx.Bind(&req); err != nil {
@@ -87,7 +87,7 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 // @Failure      400  {object}  utils.GenericResponse
 // @Failure      404  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/invoices/{id} [get]
+// @Router       /v1/protected/invoices/{id} [get]
 func (c *InvoiceController) GetInvoiceByID(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -113,7 +113,7 @@ func (c *InvoiceController) GetInvoiceByID(ctx echo.Context) error {
 // @Security     BearerAuth
 // @Success      200  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/invoices [get]
+// @Router       /v1/protected/invoices [get]
 func (c *InvoiceController) ListInvoicesByUserID(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
@@ -137,7 +137,7 @@ func (c *InvoiceController) ListInvoicesByUserID(ctx echo.Context) error {
 // @Failure      400     {object}  utils.GenericResponse
 // @Failure      404     {object}  utils.GenericResponse
 // @Failure      500     {object}  utils.GenericResponse
-// @Router       /v1/invoices/{id} [put]
+// @Router       /v1/protected/invoices/{id} [put]
 func (c *InvoiceController) UpdateInvoice(ctx echo.Context) error {
 	idParam := ctx.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
@@ -174,7 +174,7 @@ func (c *InvoiceController) UpdateInvoice(ctx echo.Context) error {
 // @Failure      400  {object}  utils.GenericResponse
 // @Failure      404  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
-// @Router       /v1/invoices/{id}/pdf [get]
+// @Router       /v1/public/invoices/{id}/pdf [get]
 func (c *InvoiceController) DownloadInvoicePDF(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -191,4 +191,28 @@ func (c *InvoiceController) DownloadInvoicePDF(ctx echo.Context) error {
 	}
 
 	return ctx.Blob(http.StatusOK, "application/pdf", pdfData)
+}
+
+// DownloadInvoicePDF godoc
+// @Summary      Download invoice PDF
+// @Description  Generates and downloads the PDF for a given invoice ID
+// @Tags         invoices
+// @Produce      application/pdf
+// @Param        invoice body   dto.GeneratePublicInvoiceRequest  true  "Invoice data"
+// @Success      200  {file}    file
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/public/invoices/generate-pdf [post]
+func (c *InvoiceController) GeneratePublicInvoice(ctx echo.Context) error {
+	var req dto.GeneratePublicInvoiceRequest
+	if err := ctx.Bind(&req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := ctx.Validate(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusCreated, "Public invoice generated successfully", req)
 }

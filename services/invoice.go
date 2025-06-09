@@ -20,6 +20,7 @@ type InvoiceService interface {
 	ListInvoiceByUserID(userID uint) ([]models.Invoice, error)
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	GenerateInvoicePDF(invoiceID uint) ([]byte, error)
+	GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error)
 }
 
 type invoiceService struct {
@@ -124,4 +125,8 @@ func (s *invoiceService) GenerateInvoicePDF(invoiceID uint) ([]byte, error) {
 	}
 
 	return pdfBuf, nil
+}
+
+func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error) {
+	return nil, nil
 }

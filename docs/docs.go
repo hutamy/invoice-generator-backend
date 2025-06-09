@@ -15,111 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/auth/sign-in": {
-            "post": {
-                "description": "Authenticate user and return JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "User Sign In",
-                "parameters": [
-                    {
-                        "description": "Sign In Request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SignInRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/sign-up": {
-            "post": {
-                "description": "Register a new user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "User Sign Up",
-                "parameters": [
-                    {
-                        "description": "Sign Up Request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SignUpRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/clients": {
+        "/v1/protected/clients": {
             "get": {
                 "security": [
                     {
@@ -199,7 +95,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/clients/{id}": {
+        "/v1/protected/clients/{id}": {
             "get": {
                 "security": [
                     {
@@ -357,7 +253,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/invoices": {
+        "/v1/protected/invoices": {
             "get": {
                 "security": [
                     {
@@ -440,7 +336,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/invoices/{id}": {
+        "/v1/protected/invoices/{id}": {
             "get": {
                 "security": [
                     {
@@ -557,8 +453,155 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/invoices/{id}/pdf": {
+        "/v1/protected/me": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get details of the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get Current User",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/auth/sign-in": {
+            "post": {
+                "description": "Authenticate user and return JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User Sign In",
+                "parameters": [
+                    {
+                        "description": "Sign In Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/auth/sign-up": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User Sign Up",
+                "parameters": [
+                    {
+                        "description": "Sign Up Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SignUpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/invoices/generate-pdf": {
+            "post": {
                 "description": "Generates and downloads the PDF for a given invoice ID",
                 "produces": [
                     "application/pdf"
@@ -569,11 +612,13 @@ const docTemplate = `{
                 "summary": "Download invoice PDF",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Invoice ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Invoice data",
+                        "name": "invoice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GeneratePublicInvoiceRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -604,30 +649,34 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/me": {
+        "/v1/public/invoices/{id}/pdf": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get details of the authenticated user",
+                "description": "Generates and downloads the PDF for a given invoice ID",
                 "produces": [
-                    "application/json"
+                    "application/pdf"
                 ],
                 "tags": [
-                    "auth"
+                    "invoices"
                 ],
-                "summary": "Get Current User",
+                "summary": "Download invoice PDF",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Invoice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
+                            "type": "file"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/utils.GenericResponse"
                         }
@@ -714,6 +763,54 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GeneratePublicInvoiceRequest": {
+            "type": "object",
+            "required": [
+                "currency",
+                "due_date",
+                "invoice_number",
+                "issue_date",
+                "recipient",
+                "sender"
+            ],
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "enum": [
+                        "USD",
+                        "EUR",
+                        "IDR"
+                    ]
+                },
+                "due_date": {
+                    "type": "string"
+                },
+                "invoice_number": {
+                    "type": "string"
+                },
+                "issue_date": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.InvoiceItemUpdateRequest"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "recipient": {
+                    "$ref": "#/definitions/dto.SenderRecipientRequest"
+                },
+                "sender": {
+                    "$ref": "#/definitions/dto.SenderRequest"
+                },
+                "tax_rate": {
+                    "type": "number"
+                }
+            }
+        },
         "dto.InvoiceItemRequest": {
             "type": "object",
             "required": [
@@ -754,6 +851,60 @@ const docTemplate = `{
                 },
                 "unit_price": {
                     "type": "number"
+                }
+            }
+        },
+        "dto.SenderRecipientRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SenderRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "bank_account_name",
+                "bank_account_number",
+                "bank_name",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bank_account_name": {
+                    "type": "string"
+                },
+                "bank_account_number": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },

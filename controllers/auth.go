@@ -28,7 +28,7 @@ func NewAuthController(authService services.AuthService) *AuthController {
 // @Failure      400   {object}  utils.GenericResponse
 // @Failure      409   {object}  utils.GenericResponse
 // @Failure      500   {object}  utils.GenericResponse
-// @Router       /v1/auth/sign-up [post]
+// @Router       /v1/public/auth/sign-up [post]
 func (c *AuthController) SignUp(ctx echo.Context) error {
 	req := new(dto.SignUpRequest)
 	if err := ctx.Bind(req); err != nil {
@@ -61,7 +61,7 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 // @Failure      400   {object}  utils.GenericResponse
 // @Failure      401   {object}  utils.GenericResponse
 // @Failure      500   {object}  utils.GenericResponse
-// @Router       /v1/auth/sign-in [post]
+// @Router       /v1/public/auth/sign-in [post]
 func (c *AuthController) SignIn(ctx echo.Context) error {
 	req := new(dto.SignInRequest)
 	if err := ctx.Bind(req); err != nil {
@@ -105,7 +105,7 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 // @Failure      401   {object}  utils.GenericResponse
 // @Failure      404   {object}  utils.GenericResponse
 // @Failure      500   {object}  utils.GenericResponse
-// @Router       /v1/me [get]
+// @Router       /v1/protected/me [get]
 func (c *AuthController) Me(ctx echo.Context) error {
 	userID, ok := ctx.Get("user_id").(uint)
 	if !ok {

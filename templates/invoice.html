@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Invoice {{ .Invoice.ID }}</title>
+    <title>Invoice {{ .Invoice.InvoiceNumber }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
       :root {
@@ -199,7 +199,7 @@
       <div class="invoice-header">
         <div>
           <div class="invoice-title">INVOICE</div>
-          <div class="invoice-id">{{ .Invoice.ID }}</div>
+          <div class="invoice-id">{{ .Invoice.InvoiceNumber }}</div>
         </div>
         <div class="invoice-dates">
           <div>Date: {{ .Invoice.IssueDate.Format "02 Jan 2006" }}</div>
