@@ -13,6 +13,6 @@ type UpdateClientRequest struct {
 	Email   *string `json:"email" validate:"omitempty,email"`
 	Address *string `json:"address" validate:"omitempty"`
 	Phone   *string `json:"phone" validate:"omitempty"`
-	UserID  uint    `json:"-"`
 	ID      uint    `param:"id" validate:"required"`
+	UserID  uint    `json:"-"`
 }
