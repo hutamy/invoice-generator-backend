@@ -1,0 +1,579 @@
+basePath: /
+definitions:
+  dto.CreateClientRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - email
+    - name
+    - phone
+    type: object
+  dto.CreateInvoiceRequest:
+    properties:
+      client_id:
+        type: integer
+      currency:
+        enum:
+        - USD
+        - EUR
+        - IDR
+        type: string
+      due_date:
+        type: string
+      invoice_number:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.InvoiceItemRequest'
+        type: array
+      notes:
+        type: string
+      tax_rate:
+        type: number
+    required:
+    - client_id
+    - currency
+    - due_date
+    - invoice_number
+    - items
+    - tax_rate
+    type: object
+  dto.InvoiceItemRequest:
+    properties:
+      description:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+      unit_price:
+        type: number
+    required:
+    - description
+    - quantity
+    - unit_price
+    type: object
+  dto.InvoiceItemUpdateRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      quantity:
+        minimum: 1
+        type: integer
+      unit_price:
+        type: number
+    required:
+    - description
+    - quantity
+    - unit_price
+    type: object
+  dto.SignInRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.SignUpRequest:
+    properties:
+      address:
+        type: string
+      bank_account_name:
+        type: string
+      bank_account_number:
+        type: string
+      bank_name:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - bank_account_name
+    - bank_account_number
+    - bank_name
+    - email
+    - name
+    - password
+    - phone
+    type: object
+  dto.UpdateClientRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - id
+    type: object
+  dto.UpdateInvoiceRequest:
+    properties:
+      client_id:
+        type: integer
+      currency:
+        type: string
+      due_date:
+        type: string
+      invoice_number:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.InvoiceItemUpdateRequest'
+        type: array
+      notes:
+        type: string
+      status:
+        type: string
+      tax_rate:
+        type: number
+    type: object
+  utils.GenericResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API documentation for your invoice app.
+  title: Smart Invoice Generator API
+  version: "1.0"
+paths:
+  /v1/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Sign In Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      summary: User Sign In
+      tags:
+      - auth
+  /v1/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Sign Up Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      summary: User Sign Up
+      tags:
+      - auth
+  /v1/clients:
+    get:
+      description: Retrieves all clients for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all clients
+      tags:
+      - clients
+    post:
+      consumes:
+      - application/json
+      description: Creates a new client for the authenticated user
+      parameters:
+      - description: Client data
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateClientRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new client
+      tags:
+      - clients
+  /v1/clients/{id}:
+    delete:
+      description: Deletes a client by its ID for the authenticated user
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete client
+      tags:
+      - clients
+    get:
+      description: Retrieves a client by its ID for the authenticated user
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Get client by ID
+      tags:
+      - clients
+    put:
+      consumes:
+      - application/json
+      description: Updates a client by its ID for the authenticated user
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Client data
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateClientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Update client
+      tags:
+      - clients
+  /v1/invoices:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all invoices for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: List invoices by user
+      tags:
+      - invoices
+    post:
+      consumes:
+      - application/json
+      description: Creates a new invoice for the authenticated user
+      parameters:
+      - description: Invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new invoice
+      tags:
+      - invoices
+  /v1/invoices/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an invoice by its ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Get invoice by ID
+      tags:
+      - invoices
+    put:
+      consumes:
+      - application/json
+      description: Updates an invoice by its ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an invoice
+      tags:
+      - invoices
+  /v1/invoices/{id}/pdf:
+    get:
+      description: Generates and downloads the PDF for a given invoice ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      summary: Download invoice PDF
+      tags:
+      - invoices
+  /v1/me:
+    get:
+      description: Get details of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.GenericResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Current User
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

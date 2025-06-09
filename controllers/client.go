@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hutamy/invoice-generator/models"
+	"github.com/hutamy/invoice-generator/dto"
 	"github.com/hutamy/invoice-generator/services"
 	"github.com/hutamy/invoice-generator/utils"
 	"github.com/hutamy/invoice-generator/utils/errors"
@@ -19,22 +19,41 @@ func NewClientController(clientService services.ClientService) *ClientController
 	return &ClientController{clientService: clientService}
 }
 
+// @Summary      Create a new client
+// @Description  Creates a new client for the authenticated user
+// @Tags         clients
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        client  body      dto.CreateClientRequest  true  "Client data"
+// @Success      201     {object}  utils.GenericResponse
+// @Failure      400     {object}  utils.GenericResponse
+// @Failure      500     {object}  utils.GenericResponse
+// @Router       /v1/clients [post]
 func (c *ClientController) CreateClient(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
-	var client models.Client
+	var client dto.CreateClientRequest
 	if err := ctx.Bind(&client); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
 	}
 
 	client.UserID = userID
-	if err := c.clientService.CreateClient(&client); err != nil {
+	if err := c.clientService.CreateClient(client); err != nil {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
 	return utils.Response(ctx, http.StatusCreated, "Client created successfully", nil)
 }
 
+// @Summary      Get all clients
+// @Description  Retrieves all clients for the authenticated user
+// @Tags         clients
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/clients [get]
 func (c *ClientController) GetAllClients(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
@@ -46,6 +65,17 @@ func (c *ClientController) GetAllClients(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusOK, "Clients retrieved successfully", clients)
 }
 
+// @Summary      Get client by ID
+// @Description  Retrieves a client by its ID for the authenticated user
+// @Tags         clients
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Client ID"
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/clients/{id} [get]
 func (c *ClientController) GetClientByID(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -65,27 +95,43 @@ func (c *ClientController) GetClientByID(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusOK, "Client retrieved successfully", client)
 }
 
+// @Summary      Update client
+// @Description  Updates a client by its ID for the authenticated user
+// @Tags         clients
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path      int           true  "Client ID"
+// @Param        client  body      dto.UpdateClientRequest true  "Client data"
+// @Success      200     {object}  utils.GenericResponse
+// @Failure      400     {object}  utils.GenericResponse
+// @Failure      500     {object}  utils.GenericResponse
+// @Router       /v1/clients/{id} [put]
 func (c *ClientController) UpdateClient(ctx echo.Context) error {
-	userID := ctx.Get("user_id").(uint)
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
-	}
-
-	var client models.Client
+	var client dto.UpdateClientRequest
 	if err := ctx.Bind(&client); err != nil {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
 	}
 
-	client.ID = uint(id)
-	client.UserID = userID
-	if err := c.clientService.UpdateClient(&client); err != nil {
+	client.UserID = ctx.Get("user_id").(uint)
+	if err := c.clientService.UpdateClient(client); err != nil {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
 	return utils.Response(ctx, http.StatusOK, "Client updated successfully", nil)
 }
 
+// @Summary      Delete client
+// @Description  Deletes a client by its ID for the authenticated user
+// @Tags         clients
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Client ID"
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/clients/{id} [delete]
 func (c *ClientController) DeleteClient(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 	id, err := strconv.Atoi(ctx.Param("id"))

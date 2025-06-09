@@ -24,6 +24,17 @@ func NewInvoiceController(invoiceService services.InvoiceService) *InvoiceContro
 	return &InvoiceController{invoiceService: invoiceService}
 }
 
+// @Summary      Create a new invoice
+// @Description  Creates a new invoice for the authenticated user
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        invoice  body      dto.CreateInvoiceRequest  true  "Invoice data"
+// @Success      201      {object}  utils.GenericResponse
+// @Failure      400      {object}  utils.GenericResponse
+// @Failure      500      {object}  utils.GenericResponse
+// @Router       /v1/invoices [post]
 func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 	var req dto.CreateInvoiceRequest
 	if err := ctx.Bind(&req); err != nil {
@@ -65,6 +76,18 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusCreated, "Invoice created successfully", invoice)
 }
 
+// @Summary      Get invoice by ID
+// @Description  Retrieves an invoice by its ID
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Invoice ID"
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/invoices/{id} [get]
 func (c *InvoiceController) GetInvoiceByID(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -82,6 +105,15 @@ func (c *InvoiceController) GetInvoiceByID(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusOK, "Invoice retrieved successfully", invoice)
 }
 
+// @Summary      List invoices by user
+// @Description  Retrieves all invoices for the authenticated user
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/invoices [get]
 func (c *InvoiceController) ListInvoicesByUserID(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
@@ -93,6 +125,19 @@ func (c *InvoiceController) ListInvoicesByUserID(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusOK, "Invoices retrieved successfully", invoices)
 }
 
+// @Summary      Update an invoice
+// @Description  Updates an invoice by its ID
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path      int                      true  "Invoice ID"
+// @Param        invoice body      dto.UpdateInvoiceRequest  true  "Invoice data"
+// @Success      200     {object}  utils.GenericResponse
+// @Failure      400     {object}  utils.GenericResponse
+// @Failure      404     {object}  utils.GenericResponse
+// @Failure      500     {object}  utils.GenericResponse
+// @Router       /v1/invoices/{id} [put]
 func (c *InvoiceController) UpdateInvoice(ctx echo.Context) error {
 	idParam := ctx.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)

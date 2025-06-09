@@ -19,6 +19,17 @@ func NewPDFController(pdfService services.PDFService) *PDFController {
 	return &PDFController{pdfService: pdfService}
 }
 
+// DownloadInvoicePDF godoc
+// @Summary      Download invoice PDF
+// @Description  Generates and downloads the PDF for a given invoice ID
+// @Tags         invoices
+// @Produce      application/pdf
+// @Param        id   path      int  true  "Invoice ID"
+// @Success      200  {file}    file
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/invoices/{id}/pdf [get]
 func (c *PDFController) DownloadInvoicePDF(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

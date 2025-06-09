@@ -18,6 +18,17 @@ func NewAuthController(authService services.AuthService) *AuthController {
 	return &AuthController{authService: authService}
 }
 
+// @Summary      User Sign Up
+// @Description  Register a new user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.SignUpRequest  true  "Sign Up Request"
+// @Success      201   {object}  utils.GenericResponse
+// @Failure      400   {object}  utils.GenericResponse
+// @Failure      409   {object}  utils.GenericResponse
+// @Failure      500   {object}  utils.GenericResponse
+// @Router       /v1/auth/sign-up [post]
 func (c *AuthController) SignUp(ctx echo.Context) error {
 	req := new(dto.SignUpRequest)
 	if err := ctx.Bind(req); err != nil {
@@ -28,7 +39,7 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	err := c.authService.SignUp(req.Name, req.Email, req.Password, req.Address, req.Phone)
+	err := c.authService.SignUp(*req)
 	if err != nil {
 		if err == errors.ErrUserAlreadyExists {
 			return utils.Response(ctx, http.StatusConflict, err.Error(), nil)
@@ -40,6 +51,17 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 	return utils.Response(ctx, http.StatusCreated, "User created successfully", nil)
 }
 
+// @Summary      User Sign In
+// @Description  Authenticate user and return JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.SignInRequest  true  "Sign In Request"
+// @Success      200   {object}  utils.GenericResponse
+// @Failure      400   {object}  utils.GenericResponse
+// @Failure      401   {object}  utils.GenericResponse
+// @Failure      500   {object}  utils.GenericResponse
+// @Router       /v1/auth/sign-in [post]
 func (c *AuthController) SignIn(ctx echo.Context) error {
 	req := new(dto.SignInRequest)
 	if err := ctx.Bind(req); err != nil {
@@ -74,6 +96,16 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 	})
 }
 
+// @Summary      Get Current User
+// @Description  Get details of the authenticated user
+// @Tags         auth
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200   {object}  utils.GenericResponse
+// @Failure      401   {object}  utils.GenericResponse
+// @Failure      404   {object}  utils.GenericResponse
+// @Failure      500   {object}  utils.GenericResponse
+// @Router       /v1/me [get]
 func (c *AuthController) Me(ctx echo.Context) error {
 	userID, ok := ctx.Get("user_id").(uint)
 	if !ok {

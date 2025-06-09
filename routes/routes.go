@@ -2,11 +2,13 @@ package routes
 
 import (
 	"github.com/hutamy/invoice-generator/controllers"
+	_ "github.com/hutamy/invoice-generator/docs"
 	"github.com/hutamy/invoice-generator/middleware"
 	"github.com/hutamy/invoice-generator/repositories"
 	"github.com/hutamy/invoice-generator/services"
 	"github.com/hutamy/invoice-generator/utils"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"gorm.io/gorm"
 )
 
@@ -55,4 +57,5 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	pdfService := services.NewPDFService(invoiceRepo, clientRepo, authRepo)
 	pdfController := controllers.NewPDFController(pdfService)
 	e.GET("/v1/invoices/:id/pdf", pdfController.DownloadInvoicePDF)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 }

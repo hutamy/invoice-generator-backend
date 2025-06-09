@@ -23,5 +23,5 @@ type Invoice struct {
 	Items         []InvoiceItem  `json:"items" gorm:"foreignKey:InvoiceID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt     time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
-	DeletedAt     gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
+	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index" swaggerignore:"true"`
 }

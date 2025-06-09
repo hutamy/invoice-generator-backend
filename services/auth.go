@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/hutamy/invoice-generator/dto"
 	"github.com/hutamy/invoice-generator/models"
 	"github.com/hutamy/invoice-generator/repositories"
 	"github.com/hutamy/invoice-generator/utils"
@@ -8,7 +9,7 @@ import (
 )
 
 type AuthService interface {
-	SignUp(name, email, password, address, phone string) error
+	SignUp(req dto.SignUpRequest) error
 	SignIn(email, password string) (models.User, error)
 	GetUserByID(id uint) (*models.User, error)
 }
@@ -21,8 +22,8 @@ func NewAuthService(authRepo repositories.AuthRepository) AuthService {
 	return &authService{authRepo: authRepo}
 }
 
-func (s *authService) SignUp(name, email, password, address, phone string) error {
-	existingUser, err := s.authRepo.GetUserByEmail(email)
+func (s *authService) SignUp(req dto.SignUpRequest) error {
+	existingUser, err := s.authRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		return err
 	}
@@ -31,19 +32,21 @@ func (s *authService) SignUp(name, email, password, address, phone string) error
 		return errors.ErrUserAlreadyExists
 	}
 
-	hashedPassword, err := utils.HashPassword(password)
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return err
 	}
 
 	user := &models.User{
-		Name:     name,
-		Email:    email,
-		Password: string(hashedPassword),
-		Address:  address,
-		Phone:    phone,
+		Name:              req.Name,
+		Email:             req.Email,
+		Password:          string(hashedPassword),
+		Address:           req.Address,
+		Phone:             req.Phone,
+		BankName:          req.BankName,
+		BankAccountName:   req.BankAccountName,
+		BankAccountNumber: req.BankAccountNumber,
 	}
-
 	return s.authRepo.CreateUser(user)
 }
 
