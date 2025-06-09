@@ -86,9 +86,69 @@ func (s *invoiceService) GenerateInvoicePDF(invoiceID uint) ([]byte, error) {
 	}
 
 	// Load HTML template
-	tmpl, err := template.ParseFiles("templates/invoice.html")
+	htmlContent, err := s.generateHTMLContent(invoice, client, user)
 	if err != nil {
 		return nil, err
+	}
+
+	return s.generatePdf(htmlContent)
+}
+
+func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error) {
+	user := &models.User{
+		Name:              req.Sender.Name,
+		Email:             req.Sender.Email,
+		Address:           req.Sender.Address,
+		Phone:             req.Sender.Phone,
+		BankName:          req.Sender.BankName,
+		BankAccountName:   req.Sender.BankAccountName,
+		BankAccountNumber: req.Sender.BankAccountNumber,
+	}
+
+	issueDate, _ := time.Parse(time.DateOnly, req.IssueDate)
+	dueDate, _ := time.Parse(time.DateOnly, req.DueDate)
+	invoice := &models.Invoice{
+		InvoiceNumber: req.InvoiceNumber,
+		IssueDate:     issueDate,
+		DueDate:       dueDate,
+		Notes:         req.Notes,
+		Currency:      req.Currency,
+		TaxRate:       req.TaxRate,
+		Items:         make([]models.InvoiceItem, len(req.Items)),
+	}
+
+	for i, item := range req.Items {
+		invoice.Subtotal += float64(item.Quantity) * item.UnitPrice
+		invoice.Items[i] = models.InvoiceItem{
+			Description: item.Description,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
+		}
+	}
+
+	invoice.Tax = invoice.TaxRate * invoice.Subtotal / 100
+	invoice.Total = invoice.Subtotal + invoice.Tax
+	client := &models.Client{
+		Name:    req.Recipient.Name,
+		Email:   req.Recipient.Email,
+		Address: req.Recipient.Address,
+		Phone:   req.Recipient.Phone,
+	}
+
+	// Load HTML template
+	htmlContent, err := s.generateHTMLContent(invoice, client, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.generatePdf(htmlContent)
+}
+
+func (s *invoiceService) generateHTMLContent(invoice *models.Invoice, client *models.Client, user *models.User) (string, error) {
+	// Load HTML template
+	tmpl, err := template.ParseFiles("templates/invoice.html")
+	if err != nil {
+		return "", err
 	}
 
 	var htmlBuf bytes.Buffer
@@ -98,20 +158,21 @@ func (s *invoiceService) GenerateInvoicePDF(invoiceID uint) ([]byte, error) {
 		"User":    user,
 	})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
+	return htmlBuf.String(), nil
+}
+
+func (s *invoiceService) generatePdf(htmlContent string) ([]byte, error) {
 	// Setup headless browser
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	var pdfBuf []byte
-	htmlContent := htmlBuf.String()
-	err = chromedp.Run(ctx,
+	err := chromedp.Run(ctx,
 		chromedp.Navigate("about:blank"),
 		chromedp.ActionFunc(func(ctx context.Context) error {
-			// Set the HTML content directly
-			// Set the HTML content using JavaScript evaluation
 			return chromedp.Evaluate(`document.documentElement.innerHTML = `+strconv.Quote(htmlContent), nil).Do(ctx)
 		}),
 		chromedp.ActionFunc(func(ctx context.Context) error {
@@ -125,8 +186,4 @@ func (s *invoiceService) GenerateInvoicePDF(invoiceID uint) ([]byte, error) {
 	}
 
 	return pdfBuf, nil
-}
-
-func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error) {
-	return nil, nil
 }

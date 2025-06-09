@@ -214,5 +214,10 @@ func (c *InvoiceController) GeneratePublicInvoice(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	return utils.Response(ctx, http.StatusCreated, "Public invoice generated successfully", req)
+	pdfData, err := c.invoiceService.GeneratePublicInvoicePDF(req)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, "Failed to generate PDF", nil)
+	}
+
+	return ctx.Blob(http.StatusOK, "application/pdf", pdfData)
 }

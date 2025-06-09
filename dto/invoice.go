@@ -42,7 +42,7 @@ type GeneratePublicInvoiceRequest struct {
 	Sender        SenderRequest              `json:"sender" validate:"required"`
 	Recipient     SenderRecipientRequest     `json:"recipient" validate:"required"`
 	Items         []InvoiceItemUpdateRequest `json:"items,omitempty"`
-	TaxRate       *float64                   `json:"tax_rate,omitempty"`
+	TaxRate       float64                    `json:"tax_rate,omitempty"`
 	Notes         string                     `json:"notes"`
 }
 
