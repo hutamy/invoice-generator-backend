@@ -1,48 +1,82 @@
 # 🧾 Invoice Generator for Freelancers
 
-A backend service that helps freelancers and solo entrepreneurs manage their invoices, send them to clients, and track payments — all in one place.
-
-Built with Go, PostgreSQL, and clean architecture principles.
+A self-hosted, developer-friendly backend API for freelancers to manage clients and generate invoices (with PDF export). Built with **Go**, **PostgreSQL**, **Echo**, **Swagger**, and **MinIO**.
 
 ---
 
-## 🔧 Features
+## 🚀 Features
 
-- **Authentication**
-  - Sign-up / login with JWT
-- **Client Management**
-  - Add, edit, and delete clients
-- **Invoice Management**
-  - Create, send, and manage invoices
-  - Status tracking: Draft, Sent, Paid, Overdue
-- **PDF Generation**
-  - Download invoice as branded PDF
-- **Email Integration**
-  - Send invoice via email (SendGrid / Mailgun)
-- **Payment Integration**
-  - Accept payments via Stripe or PayPal
-- **Dashboard (optional)**
-  - View total income, unpaid invoices, overdue status
+- 🧑‍💼 **User Authentication** (JWT)
+- 👥 **Client Management** (CRUD)
+- 💸 **Invoice Management** (CRUD, partial updates)
+- 📄 **PDF Invoice Generation** using HTML templates
+- 🧾 **Swagger/OpenAPI Docs**
+- 🛡️ Secure & modular architecture (repository + service layers)
 
 ---
 
-## 🧱 Tech Stack
+## 📦 Tech Stack
 
-| Layer            | Technology                     |
-| ---------------- | ------------------------------ |
-| Language         | Go (Golang)                    |
-| Framework        | Echo                           |
-| Database         | PostgreSQL                     |
-| ORM / SQL Mapper | GORM                           |
-| Auth             | JWT                            |
-| PDF Generation   | gofpdf / pdfcpu                |
-| Email Service    | SendGrid / Mailgun             |
-| Payments         | Stripe / PayPal                |
-| Observability    | OpenTelemetry + Datadog        |
-| Deployment       | Docker, GitHub Actions (CI/CD) |
+| Component     | Tool                    |
+| ------------- | ----------------------- |
+| Language      | Go (Golang)             |
+| Web Framework | Echo                    |
+| DB            | PostgreSQL (via GORM)   |
+| PDF Engine    | chromedp + Go templates |
+| Auth          | JWT                     |
+| Docs          | Swag + Swagger UI       |
+| Dev Tools     | Docker, docker-compose  |
 
 ---
 
-## 📐 Architecture
+## ⚙️ Setup
 
-The project follows **Clean Architecture** with a **Modular Monolith** approach:
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/hutamy/invoice-generator.git
+cd invoice-generator
+```
+
+### 2. Set up .env
+
+```
+cp .env.example .env
+# fill in DB, JWT_SECRET
+```
+
+### 3. Run with docker compose
+
+```
+docker-compose up --build
+```
+
+## 📚 API Documentation
+
+Visit: `http://localhost:8080/swagger/index.html`
+
+## 💡 Project Structure
+
+```
+.
+├── cmd/                  # Main application entrypoint
+├── config/               # Configuration files and helpers
+├── controllers/          # HTTP handlers
+├── docs/                 # Swagger/OpenAPI docs
+├── middleware/           # Middleware for JWT
+├── models/               # GORM models
+├── repositories/         # DB access layer
+├── routes/               # HTTP routes
+├── services/             # Business logic
+├── templates/            # HTML templates for PDF invoices
+├── utils/                # Shared utilities and packages
+├── scripts/              # Helper scripts (e.g., DB migrations)
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── go.mod
+├── go.sum
+├── Makefile
+└── README.md
+```
