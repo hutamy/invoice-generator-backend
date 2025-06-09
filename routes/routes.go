@@ -44,7 +44,6 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	authRoutes.POST("/sign-in", authController.SignIn)
 
 	publicInvoiceRoutes := public.Group("/invoices")
-
 	publicInvoiceRoutes.POST("/generate-pdf", invoiceController.GeneratePublicInvoice)
 
 	protected := v1.Group("/protected")

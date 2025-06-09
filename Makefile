@@ -5,7 +5,7 @@ run:
 	go run cmd/main.go
 
 up:
-	docker compose up -d
+	docker compose -f docker-compose-pg-only.yaml up -d
 
 down:
 	docker compose down
