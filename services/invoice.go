@@ -9,9 +9,9 @@ import (
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
-	"github.com/hutamy/invoice-generator/dto"
-	"github.com/hutamy/invoice-generator/models"
-	"github.com/hutamy/invoice-generator/repositories"
+	"github.com/hutamy/invoice-generator-backend/dto"
+	"github.com/hutamy/invoice-generator-backend/models"
+	"github.com/hutamy/invoice-generator-backend/repositories"
 )
 
 type InvoiceService interface {

@@ -3,7 +3,7 @@ package repositories
 import (
 	"errors"
 
-	"github.com/hutamy/invoice-generator/models"
+	"github.com/hutamy/invoice-generator-backend/models"
 	"gorm.io/gorm"
 )
 

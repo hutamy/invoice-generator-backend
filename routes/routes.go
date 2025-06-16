@@ -1,12 +1,12 @@
 package routes
 
 import (
-	"github.com/hutamy/invoice-generator/controllers"
-	_ "github.com/hutamy/invoice-generator/docs"
-	"github.com/hutamy/invoice-generator/middleware"
-	"github.com/hutamy/invoice-generator/repositories"
-	"github.com/hutamy/invoice-generator/services"
-	"github.com/hutamy/invoice-generator/utils"
+	"github.com/hutamy/invoice-generator-backend/controllers"
+	_ "github.com/hutamy/invoice-generator-backend/docs"
+	"github.com/hutamy/invoice-generator-backend/middleware"
+	"github.com/hutamy/invoice-generator-backend/repositories"
+	"github.com/hutamy/invoice-generator-backend/services"
+	"github.com/hutamy/invoice-generator-backend/utils"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"gorm.io/gorm"

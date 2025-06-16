@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/hutamy/invoice-generator/dto"
-	"github.com/hutamy/invoice-generator/services"
-	"github.com/hutamy/invoice-generator/utils"
-	"github.com/hutamy/invoice-generator/utils/errors"
+	"github.com/hutamy/invoice-generator-backend/dto"
+	"github.com/hutamy/invoice-generator-backend/services"
+	"github.com/hutamy/invoice-generator-backend/utils"
+	"github.com/hutamy/invoice-generator-backend/utils/errors"
 	"github.com/labstack/echo/v4"
 )
 

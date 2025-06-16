@@ -14,8 +14,8 @@ import (
 	"log"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/hutamy/invoice-generator/config"
-	"github.com/hutamy/invoice-generator/routes"
+	"github.com/hutamy/invoice-generator-backend/config"
+	"github.com/hutamy/invoice-generator-backend/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

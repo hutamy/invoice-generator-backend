@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hutamy/invoice-generator/dto"
-	"github.com/hutamy/invoice-generator/models"
-	"github.com/hutamy/invoice-generator/utils/errors"
+	"github.com/hutamy/invoice-generator-backend/dto"
+	"github.com/hutamy/invoice-generator-backend/models"
+	"github.com/hutamy/invoice-generator-backend/utils/errors"
 	"gorm.io/gorm"
 )
 

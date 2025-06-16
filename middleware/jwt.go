@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hutamy/invoice-generator/utils"
-	"github.com/hutamy/invoice-generator/utils/errors"
+	"github.com/hutamy/invoice-generator-backend/utils"
+	"github.com/hutamy/invoice-generator-backend/utils/errors"
 	"github.com/labstack/echo/v4"
 )
 
