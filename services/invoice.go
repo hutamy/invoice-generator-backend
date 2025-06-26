@@ -24,6 +24,7 @@ type InvoiceService interface {
 	GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error)
 	DeleteInvoice(id uint) error
 	UpdateInvoiceStatus(id uint, status string) error
+	InvoiceSummary(userID uint) ([]dto.SummaryInvoice, error)
 }
 
 type invoiceService struct {
@@ -202,4 +203,8 @@ func (s *invoiceService) DeleteInvoice(id uint) error {
 
 func (s *invoiceService) UpdateInvoiceStatus(id uint, status string) error {
 	return s.invoiceRepo.UpdateInvoiceStatus(id, status)
+}
+
+func (s *invoiceService) InvoiceSummary(userID uint) ([]dto.SummaryInvoice, error) {
+	return s.invoiceRepo.InvoiceSummary(userID)
 }

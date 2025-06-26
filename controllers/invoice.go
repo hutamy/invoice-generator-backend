@@ -292,3 +292,22 @@ func (c *InvoiceController) UpdateInvoiceStatus(ctx echo.Context) error {
 
 	return utils.Response(ctx, http.StatusOK, "Invoice status updated successfully", nil)
 }
+
+// @Summary      Get invoice summary
+// @Description  Retrieves a summary of invoices for the authenticated user
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/protected/invoices/summary [get]
+func (c *InvoiceController) InvoiceSummary(ctx echo.Context) error {
+	userID := ctx.Get("user_id").(uint)
+	summary, err := c.invoiceService.InvoiceSummary(userID)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Invoice summary retrieved successfully", summary)
+}

@@ -71,3 +71,9 @@ type SenderRecipientRequest struct {
 type UpdateInvoiceStatusRequest struct {
 	Status string `json:"status" validate:"required"`
 }
+
+type SummaryInvoice struct {
+	Status   string  `json:"status"`
+	Total    float64 `json:"total"`
+	Currency string  `json:"currency"`
+}

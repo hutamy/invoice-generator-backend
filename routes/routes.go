@@ -61,6 +61,7 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	clientRoutes.DELETE("/:id", clientController.DeleteClient)
 
 	protectedInvoiceRoutes := protected.Group("/invoices")
+	protectedInvoiceRoutes.GET("/summary", invoiceController.InvoiceSummary)
 	protectedInvoiceRoutes.POST("", invoiceController.CreateInvoice)
 	protectedInvoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
 	protectedInvoiceRoutes.PUT("/:id", invoiceController.UpdateInvoice)

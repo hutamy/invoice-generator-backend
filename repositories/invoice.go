@@ -17,6 +17,7 @@ type InvoiceRepository interface {
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	DeleteInvoice(id uint) error
 	UpdateInvoiceStatus(id uint, status string) error
+	InvoiceSummary(userID uint) ([]dto.SummaryInvoice, error)
 }
 
 type invoiceRepository struct {
@@ -196,4 +197,46 @@ func (r *invoiceRepository) UpdateInvoiceStatus(id uint, status string) error {
 
 	invoice.Status = status
 	return r.db.Save(&invoice).Error
+}
+
+func (r *invoiceRepository) InvoiceSummary(userID uint) ([]dto.SummaryInvoice, error) {
+	var summaries []dto.SummaryInvoice
+	var currency string
+	var err error
+
+	currency, err = r.GetCurrency(userID)
+	if err != nil {
+		currency = "IDR" // Default to IDR if no currency found
+	}
+
+	paidSummary := dto.SummaryInvoice{Status: "paid", Total: 0, Currency: currency}
+	r.db.Model(&models.Invoice{}).
+		Where("user_id = ? AND status = ?", userID, "paid").
+		Select("SUM(total) as total").
+		Scan(&paidSummary.Total)
+	summaries = append(summaries, paidSummary)
+
+	unpaidSummary := dto.SummaryInvoice{Status: "unpaid", Total: 0, Currency: currency}
+	r.db.Model(&models.Invoice{}).
+		Where("user_id = ? AND status IN ?", userID, []string{"draft", "open"}).
+		Select("SUM(total) as total").
+		Scan(&unpaidSummary.Total)
+	summaries = append(summaries, unpaidSummary)
+
+	pastDueSummary := dto.SummaryInvoice{Status: "past due", Total: 0, Currency: currency}
+	r.db.Model(&models.Invoice{}).
+		Where("user_id = ? AND status = ?", userID, "past due").
+		Select("SUM(total) as total").
+		Scan(&pastDueSummary.Total)
+	summaries = append(summaries, pastDueSummary)
+	return summaries, nil
+}
+
+func (r *invoiceRepository) GetCurrency(userID uint) (string, error) {
+	var userInvoice models.Invoice
+	if err := r.db.First(&userInvoice, "user_id = ?", userID).Error; err != nil {
+		return "", err
+	}
+
+	return userInvoice.Currency, nil
 }
