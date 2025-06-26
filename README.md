@@ -224,7 +224,7 @@ curl --location 'http://localhost:8080/v1/protected/invoices/1' \
 ### Update Invoice
 
 ```bash
-curl --location --request PATCH 'http://localhost:8080/v1/protected/invoices/1' \
+curl --location --request PUT 'http://localhost:8080/v1/protected/invoices/1' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <token>' \
 --data '{
@@ -243,6 +243,17 @@ curl --location --request PATCH 'http://localhost:8080/v1/protected/invoices/1' 
             "unit_price": 100
         }
     ]
+}'
+```
+
+### Update Invoice Status
+
+```bash
+curl --location --request PATCH 'http://localhost:8080/v1/protected/invoices/1/status' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <token>' \
+--data '{
+    "status": "sent"
 }'
 ```
 
