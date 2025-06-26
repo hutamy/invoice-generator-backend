@@ -23,6 +23,7 @@ type InvoiceService interface {
 	GenerateInvoicePDF(invoiceID uint) ([]byte, error)
 	GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error)
 	DeleteInvoice(id uint) error
+	UpdateInvoiceStatus(id uint, status string) error
 }
 
 type invoiceService struct {
@@ -55,7 +56,6 @@ func (s *invoiceService) CreateInvoice(invoice *models.Invoice) error {
 	invoice.Tax = invoice.TaxRate * subtotal / 100
 	invoice.Total = invoice.Subtotal + invoice.Tax
 	invoice.Status = "draft" // Default status for new invoices
-	invoice.IssueDate = time.Now()
 	return s.invoiceRepo.CreateInvoice(invoice)
 }
 
@@ -198,4 +198,8 @@ func (s *invoiceService) generatePdf(htmlContent string) ([]byte, error) {
 
 func (s *invoiceService) DeleteInvoice(id uint) error {
 	return s.invoiceRepo.DeleteInvoice(id)
+}
+
+func (s *invoiceService) UpdateInvoiceStatus(id uint, status string) error {
+	return s.invoiceRepo.UpdateInvoiceStatus(id, status)
 }

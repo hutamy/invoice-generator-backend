@@ -16,6 +16,7 @@ type InvoiceRepository interface {
 	ListInvoiceByUserID(userID uint) ([]models.Invoice, error)
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	DeleteInvoice(id uint) error
+	UpdateInvoiceStatus(id uint, status string) error
 }
 
 type invoiceRepository struct {
@@ -58,6 +59,7 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 	if req.ClientID != nil {
 		invoice.ClientID = *req.ClientID
 	}
+
 	if req.DueDate != nil {
 		dueDate, err := time.Parse(time.DateOnly, *req.DueDate)
 		if err != nil {
@@ -66,9 +68,11 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 
 		invoice.DueDate = dueDate
 	}
+
 	if req.Notes != nil {
 		invoice.Notes = *req.Notes
 	}
+
 	if req.Status != nil {
 		invoice.Status = *req.Status
 	}
@@ -182,4 +186,14 @@ func (r *invoiceRepository) DeleteInvoice(id uint) error {
 	}
 
 	return r.db.Delete(&invoice).Error
+}
+
+func (r *invoiceRepository) UpdateInvoiceStatus(id uint, status string) error {
+	var invoice models.Invoice
+	if err := r.db.First(&invoice, id).Error; err != nil {
+		return err
+	}
+
+	invoice.Status = status
+	return r.db.Save(&invoice).Error
 }

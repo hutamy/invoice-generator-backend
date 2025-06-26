@@ -255,3 +255,40 @@ func (c *InvoiceController) DeleteInvoice(ctx echo.Context) error {
 
 	return utils.Response(ctx, http.StatusOK, "Invoice deleted successfully", nil)
 }
+
+// @Summary      Update invoice status
+// @Description  Updates the status of an invoice by its ID
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id     path      int     true  "Invoice ID"
+// @Param        status body      string  true  "New status for the invoice"
+// @Success      200    {object}  utils.GenericResponse
+// @Failure      400    {object}  utils.GenericResponse
+// @Failure      404    {object}  utils.GenericResponse
+// @Failure      500    {object}  utils.GenericResponse
+// @Router       /v1/protected/invoices/{id}/status [put]
+
+func (c *InvoiceController) UpdateInvoiceStatus(ctx echo.Context) error {
+	idParam := ctx.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid invoice ID"})
+	}
+
+	var req dto.UpdateInvoiceStatusRequest
+	if err := ctx.Bind(&req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := c.invoiceService.UpdateInvoiceStatus(uint(id), req.Status); err != nil {
+		if e.Is(err, gorm.ErrRecordNotFound) {
+			return utils.Response(ctx, http.StatusNotFound, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Invoice status updated successfully", nil)
+}

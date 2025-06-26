@@ -63,8 +63,9 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	protectedInvoiceRoutes := protected.Group("/invoices")
 	protectedInvoiceRoutes.POST("", invoiceController.CreateInvoice)
 	protectedInvoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
-	protectedInvoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
+	protectedInvoiceRoutes.PUT("/:id", invoiceController.UpdateInvoice)
 	protectedInvoiceRoutes.DELETE("/:id", invoiceController.DeleteInvoice)
 	protectedInvoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
+	protectedInvoiceRoutes.PATCH("/:id/status", invoiceController.UpdateInvoiceStatus)
 	protectedInvoiceRoutes.POST("/:id/pdf", invoiceController.DownloadInvoicePDF)
 }

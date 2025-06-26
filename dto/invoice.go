@@ -67,3 +67,7 @@ type SenderRecipientRequest struct {
 	Email   string `json:"email" validate:"email"`
 	Phone   string `json:"phone"`
 }
+
+type UpdateInvoiceStatusRequest struct {
+	Status string `json:"status" validate:"required"`
+}
