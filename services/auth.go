@@ -9,7 +9,7 @@ import (
 )
 
 type AuthService interface {
-	SignUp(req dto.SignUpRequest) error
+	SignUp(req dto.SignUpRequest) (models.User, error)
 	SignIn(email, password string) (models.User, error)
 	GetUserByID(id uint) (*models.User, error)
 }
@@ -22,19 +22,19 @@ func NewAuthService(authRepo repositories.AuthRepository) AuthService {
 	return &authService{authRepo: authRepo}
 }
 
-func (s *authService) SignUp(req dto.SignUpRequest) error {
+func (s *authService) SignUp(req dto.SignUpRequest) (models.User, error) {
 	existingUser, err := s.authRepo.GetUserByEmail(req.Email)
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	if existingUser != nil {
-		return errors.ErrUserAlreadyExists
+		return models.User{}, errors.ErrUserAlreadyExists
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	user := &models.User{
@@ -47,7 +47,17 @@ func (s *authService) SignUp(req dto.SignUpRequest) error {
 		BankAccountName:   req.BankAccountName,
 		BankAccountNumber: req.BankAccountNumber,
 	}
-	return s.authRepo.CreateUser(user)
+
+	if err := s.authRepo.CreateUser(user); err != nil {
+		return models.User{}, err
+	}
+
+	user, err = s.authRepo.GetUserByEmail(req.Email)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return *user, nil
 }
 
 func (s *authService) SignIn(email, password string) (models.User, error) {

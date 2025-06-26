@@ -200,7 +200,7 @@
           <div class="invoice-id">{{ .Invoice.InvoiceNumber }}</div>
         </div>
         <div class="invoice-dates">
-          <div>Date: {{ .Invoice.IssueDate.Format "02 Jan 2006" }}</div>
+          <div>Issue Date: {{ .Invoice.IssueDate.Format "02 Jan 2006" }}</div>
           <div>Due Date: {{ .Invoice.DueDate.Format "02 Jan 2006" }}</div>
         </div>
       </div>
@@ -240,8 +240,8 @@
           <tr>
             <td>{{ .Description }}</td>
             <td>{{ .Quantity }}</td>
-            <td>{{ $.Invoice.Currency }} {{ printf "%.2f" .UnitPrice }}</td>
-            <td>{{ $.Invoice.Currency }} {{ printf "%.2f" .Total }}</td>
+            <td>{{ $.Invoice.Currency }} {{ humanize .UnitPrice }}</td>
+            <td>{{ $.Invoice.Currency }} {{ humanize .Total }}</td>
           </tr>
           {{ end }}
         </tbody>
@@ -251,17 +251,17 @@
         <div class="invoice-subtotal">
           <span>Subtotal:</span>
           <span
-            >{{ .Invoice.Currency }} {{ printf "%.2f" .Invoice.Subtotal }}</span
+            >{{ .Invoice.Currency }} {{ humanize .Invoice.Subtotal }}</span
           >
         </div>
         <div class="invoice-tax">
           <span>Tax ({{ printf "%.1f" .Invoice.TaxRate }}%):</span>
-          <span>{{ .Invoice.Currency }} {{ printf "%.2f" .Invoice.Tax }}</span>
+          <span>{{ .Invoice.Currency }} {{ humanize .Invoice.Tax }}</span>
         </div>
         <div class="invoice-total">
           <span class="invoice-total-label">Total:</span>
           <span class="invoice-total-amount"
-            >{{ .Invoice.Currency }} {{ printf "%.2f" .Invoice.Total }}</span
+            >{{ .Invoice.Currency }} {{ humanize .Invoice.Total }}</span
           >
         </div>
       </div>

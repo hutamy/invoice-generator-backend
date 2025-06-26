@@ -27,7 +27,7 @@ func (r *clientRepository) CreateClient(client *models.Client) error {
 
 func (r *clientRepository) GetAllByUserID(userID uint) ([]models.Client, error) {
 	var clients []models.Client
-	err := r.db.Where("user_id = ?", userID).Find(&clients).Error
+	err := r.db.Where("user_id = ?", userID).Order("created_at DESC").Find(&clients).Error
 	if err != nil {
 		return nil, err
 	}

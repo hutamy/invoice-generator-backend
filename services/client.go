@@ -42,9 +42,9 @@ func (s *clientService) GetClientByID(id, userID uint) (*models.Client, error) {
 }
 
 func (s *clientService) UpdateClient(req dto.UpdateClientRequest) error {
-	client := &models.Client{
-		ID:     req.ID,
-		UserID: req.UserID,
+	client, err := s.GetClientByID(req.ID, req.UserID)
+	if err != nil {
+		return err
 	}
 
 	if req.Name != nil {

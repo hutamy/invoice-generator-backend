@@ -9,6 +9,7 @@ import (
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
+	"github.com/dustin/go-humanize"
 	"github.com/hutamy/invoice-generator-backend/dto"
 	"github.com/hutamy/invoice-generator-backend/models"
 	"github.com/hutamy/invoice-generator-backend/repositories"
@@ -21,6 +22,7 @@ type InvoiceService interface {
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	GenerateInvoicePDF(invoiceID uint) ([]byte, error)
 	GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error)
+	DeleteInvoice(id uint) error
 }
 
 type invoiceService struct {
@@ -146,7 +148,13 @@ func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceR
 
 func (s *invoiceService) generateHTMLContent(invoice *models.Invoice, client *models.Client, user *models.User) (string, error) {
 	// Load HTML template
-	tmpl, err := template.ParseFiles("templates/invoice.html")
+	funcMap := template.FuncMap{
+		"humanize": func(value float64) string {
+			return humanize.CommafWithDigits(value, 2)
+		},
+	}
+	tmpl := template.New("invoice.html").Funcs(funcMap)
+	tmpl, err := tmpl.ParseFiles("templates/invoice.html")
 	if err != nil {
 		return "", err
 	}
@@ -186,4 +194,8 @@ func (s *invoiceService) generatePdf(htmlContent string) ([]byte, error) {
 	}
 
 	return pdfBuf, nil
+}
+
+func (s *invoiceService) DeleteInvoice(id uint) error {
+	return s.invoiceRepo.DeleteInvoice(id)
 }

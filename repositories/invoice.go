@@ -15,6 +15,7 @@ type InvoiceRepository interface {
 	GetInvoiceByID(id uint) (*models.Invoice, error)
 	ListInvoiceByUserID(userID uint) ([]models.Invoice, error)
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
+	DeleteInvoice(id uint) error
 }
 
 type invoiceRepository struct {
@@ -40,7 +41,7 @@ func (r *invoiceRepository) GetInvoiceByID(id uint) (*models.Invoice, error) {
 
 func (r *invoiceRepository) ListInvoiceByUserID(userID uint) ([]models.Invoice, error) {
 	var invoices []models.Invoice
-	if err := r.db.Where("user_id = ?", userID).Preload("Items").Find(&invoices).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).Preload("Items").Order("created_at DESC").Find(&invoices).Error; err != nil {
 		return nil, err
 	}
 
@@ -82,6 +83,26 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 
 	if req.InvoiceNumber != nil {
 		invoice.InvoiceNumber = *req.InvoiceNumber
+	}
+
+	if req.ClientID != nil {
+		invoice.ClientID = *req.ClientID
+	}
+
+	if req.ClientName != nil {
+		invoice.ClientName = *req.ClientName
+	}
+
+	if req.ClientEmail != nil {
+		invoice.ClientEmail = *req.ClientEmail
+	}
+
+	if req.ClientAddress != nil {
+		invoice.ClientAddress = *req.ClientAddress
+	}
+
+	if req.ClientPhone != nil {
+		invoice.ClientPhone = *req.ClientPhone
 	}
 
 	// Map existing items by ID
@@ -147,4 +168,18 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 	invoice.Tax = invoice.TaxRate * subtotal / 100
 	invoice.Total = invoice.Subtotal + invoice.Tax
 	return r.db.Save(&invoice).Error
+}
+
+func (r *invoiceRepository) DeleteInvoice(id uint) error {
+	var invoice models.Invoice
+	if err := r.db.First(&invoice, id).Error; err != nil {
+		return err
+	}
+
+	// Delete associated items first
+	if err := r.db.Where("invoice_id = ?", id).Delete(&models.InvoiceItem{}).Error; err != nil {
+		return err
+	}
+
+	return r.db.Delete(&invoice).Error
 }

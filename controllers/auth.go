@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/hutamy/invoice-generator-backend/dto"
 	"github.com/hutamy/invoice-generator-backend/services"
@@ -39,7 +40,7 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	err := c.authService.SignUp(*req)
+	user, err := c.authService.SignUp(*req)
 	if err != nil {
 		if err == errors.ErrUserAlreadyExists {
 			return utils.Response(ctx, http.StatusConflict, err.Error(), nil)
@@ -48,7 +49,20 @@ func (c *AuthController) SignUp(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return utils.Response(ctx, http.StatusCreated, "User created successfully", nil)
+	accessToken, err := utils.GenerateJWT(user.ID, time.Hour*24) // Token valid for 24 hours
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	refreshToken, err := utils.GenerateJWT(user.ID, time.Hour*24*7) // Token valid for 7 days
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusCreated, "User created successfully", echo.Map{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
 }
 
 // @Summary      User Sign In
@@ -81,18 +95,19 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	token, err := utils.GenerateJWT(user.ID)
+	accessToken, err := utils.GenerateJWT(user.ID, time.Hour*24) // Token valid for 24 hours
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	refreshToken, err := utils.GenerateJWT(user.ID, time.Hour*24*7) // Token valid for 7 days
 	if err != nil {
 		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
 	}
 
 	return utils.Response(ctx, http.StatusOK, "Sign In successful", echo.Map{
-		"token": token,
-		"user": echo.Map{
-			"id":    user.ID,
-			"name":  user.Name,
-			"email": user.Email,
-		},
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
 	})
 }
 
@@ -108,6 +123,7 @@ func (c *AuthController) SignIn(ctx echo.Context) error {
 // @Router       /v1/protected/me [get]
 func (c *AuthController) Me(ctx echo.Context) error {
 	userID, ok := ctx.Get("user_id").(uint)
+	// Check if userID is present in the context
 	if !ok {
 		return utils.Response(ctx, http.StatusUnauthorized, errors.ErrUnauthorized.Error(), nil)
 	}
@@ -121,8 +137,68 @@ func (c *AuthController) Me(ctx echo.Context) error {
 	}
 
 	return utils.Response(ctx, http.StatusOK, "User retrieved successfully", echo.Map{
-		"id":    user.ID,
-		"name":  user.Name,
-		"email": user.Email,
+		"id":                  user.ID,
+		"name":                user.Name,
+		"email":               user.Email,
+		"phone":               user.Phone,
+		"address":             user.Address,
+		"bank_name":           user.BankName,
+		"bank_account_number": user.BankAccountNumber,
+		"bank_account_name":   user.BankAccountName,
+	})
+}
+
+// @Summary      Refresh Token
+// @Description  Refresh access token using a valid refresh token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.RefreshTokenRequest  true  "Refresh Token Request"
+// @Success      200   {object}  utils.GenericResponse
+// @Failure      400   {object}  utils.GenericResponse
+// @Failure      401   {object}  utils.GenericResponse
+// @Failure      500   {object}  utils.GenericResponse
+// @Router       /v1/public/auth/refresh-token [post]
+func (c *AuthController) RefreshToken(ctx echo.Context) error {
+	req := new(dto.RefreshTokenRequest)
+	if err := ctx.Bind(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrBadRequest.Error(), nil)
+	}
+
+	if err := ctx.Validate(req); err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	claims, err := utils.ParseJWT(req.RefreshToken)
+	if err != nil {
+		return utils.Response(ctx, http.StatusUnauthorized, errors.ErrUnauthorized.Error(), nil)
+	}
+
+	userID, ok := claims["user_id"].(float64)
+	if !ok {
+		return utils.Response(ctx, http.StatusUnauthorized, errors.ErrUnauthorized.Error(), nil)
+	}
+
+	user, err := c.authService.GetUserByID(uint(userID))
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+	if user == nil {
+		return utils.Response(ctx, http.StatusNotFound, errors.ErrNotFound.Error(), nil)
+	}
+
+	accessToken, err := utils.GenerateJWT(user.ID, time.Hour*24)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	refreshToken, err := utils.GenerateJWT(user.ID, time.Hour*24*7)
+	if err != nil {
+		return utils.Response(ctx, http.StatusInternalServerError, errors.ErrFailedGenerateToken.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Token refreshed successfully", echo.Map{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
 	})
 }

@@ -7,13 +7,17 @@ type InvoiceItemRequest struct {
 }
 
 type CreateInvoiceRequest struct {
-	ClientID      uint                 `json:"client_id" validate:"required"`
+	ClientID      uint                 `json:"client_id"`
 	DueDate       string               `json:"due_date" validate:"required,datetime=2006-01-02"`
 	Items         []InvoiceItemRequest `json:"items" validate:"required,dive"`
 	Notes         string               `json:"notes"`
 	InvoiceNumber string               `json:"invoice_number" validate:"required"`
 	Currency      string               `json:"currency" validate:"required,oneof=USD EUR IDR"`
 	TaxRate       float64              `json:"tax_rate"`
+	ClientName    string               `json:"client_name" validate:"required"`
+	ClientEmail   string               `json:"client_email" validate:"required,email"`
+	ClientAddress string               `json:"client_address" validate:"required"`
+	ClientPhone   string               `json:"client_phone" validate:"required"`
 }
 
 type InvoiceItemUpdateRequest struct {
@@ -32,6 +36,10 @@ type UpdateInvoiceRequest struct {
 	TaxRate       *float64                   `json:"tax_rate,omitempty"`
 	InvoiceNumber *string                    `json:"invoice_number,omitempty"`
 	Items         []InvoiceItemUpdateRequest `json:"items,omitempty"`
+	ClientName    *string                    `json:"client_name,omitempty"`
+	ClientEmail   *string                    `json:"client_email,omitempty"`
+	ClientAddress *string                    `json:"client_address,omitempty"`
+	ClientPhone   *string                    `json:"client_phone,omitempty"`
 }
 
 type GeneratePublicInvoiceRequest struct {

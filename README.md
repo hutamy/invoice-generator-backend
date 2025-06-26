@@ -112,7 +112,6 @@ curl --location 'http://localhost:8080/v1/public/auth/sign-up' \
 ```bash
 curl --location 'http://localhost:8080/v1/public/auth/sign-in' \
 --header 'Content-Type: application/json' \
---header 'X-API-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDk3MzI5MzcsImlhdCI6MTc0OTQ3MzczNywidXNlcl9pZCI6Mn0.YOw9hjXh_Llj11bWqOMnAkwSWb2TdH23ppsSX7g3aPo' \
 --data-raw '{
     "email": "jane@example.com",
     "password": "yourpassword",
@@ -124,6 +123,16 @@ curl --location 'http://localhost:8080/v1/public/auth/sign-in' \
 ```bash
 curl --location 'http://localhost:8080/v1/protected/me' \
 --header 'Authorization: Bearer <token>'
+```
+
+### Refresh Token
+
+```bash
+curl --location 'http://localhost:8080/v1/protected/auth/refresh-token' \
+--header 'Authorization: Bearer <token>'
+--data-raw '{
+    "refresh_token": <token>
+}'
 ```
 
 ### Create Client

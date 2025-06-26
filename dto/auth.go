@@ -25,3 +25,7 @@ type UpdateUserRequest struct {
 	BankAccountNumber *string `json:"bank_account_number" validate:"omitempty,numeric,gt=0"` // Validate bank account number format (numeric and > 0)
 	UserID            uint    `json:"-"`                                                     // This field is used internally to identify the user being updated
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}

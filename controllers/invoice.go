@@ -60,6 +60,10 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 		Status:        "draft", // default status
 		Currency:      req.Currency,
 		TaxRate:       req.TaxRate,
+		ClientName:    req.ClientName,
+		ClientEmail:   req.ClientEmail,
+		ClientAddress: req.ClientAddress,
+		ClientPhone:   req.ClientPhone,
 	}
 
 	for _, item := range req.Items {
@@ -220,4 +224,34 @@ func (c *InvoiceController) GeneratePublicInvoice(ctx echo.Context) error {
 	}
 
 	return ctx.Blob(http.StatusOK, "application/pdf", pdfData)
+}
+
+// @Summary      Delete an invoice
+// @Description  Deletes an invoice by its ID
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Invoice ID"
+// @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
+// @Failure      404  {object}  utils.GenericResponse
+// @Failure      500  {object}  utils.GenericResponse
+// @Router       /v1/protected/invoices/{id} [delete]
+func (c *InvoiceController) DeleteInvoice(ctx echo.Context) error {
+	idParam := ctx.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{"error": "invalid invoice ID"})
+	}
+
+	if err := c.invoiceService.DeleteInvoice(uint(id)); err != nil {
+		if e.Is(err, gorm.ErrRecordNotFound) {
+			return utils.Response(ctx, http.StatusNotFound, err.Error(), nil)
+		}
+
+		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return utils.Response(ctx, http.StatusOK, "Invoice deleted successfully", nil)
 }

@@ -48,7 +48,10 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 
 	protected := v1.Group("/protected")
 	protected.Use(middleware.JWTMiddleware)
-	protected.GET("/me", authController.Me)
+
+	authPrivateRoutes := protected.Group("/auth")
+	authPrivateRoutes.GET("/me", authController.Me)
+	authPrivateRoutes.POST("/refresh-token", authController.RefreshToken)
 
 	clientRoutes := protected.Group("/clients")
 	clientRoutes.POST("", clientController.CreateClient)
@@ -61,6 +64,7 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	protectedInvoiceRoutes.POST("", invoiceController.CreateInvoice)
 	protectedInvoiceRoutes.GET("/:id", invoiceController.GetInvoiceByID)
 	protectedInvoiceRoutes.PATCH("/:id", invoiceController.UpdateInvoice)
+	protectedInvoiceRoutes.DELETE("/:id", invoiceController.DeleteInvoice)
 	protectedInvoiceRoutes.GET("", invoiceController.ListInvoicesByUserID)
 	protectedInvoiceRoutes.POST("/:id/pdf", invoiceController.DownloadInvoicePDF)
 }

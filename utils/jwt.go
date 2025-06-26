@@ -10,11 +10,11 @@ import (
 
 var secret = []byte(config.GetConfig().JwtSecret)
 
-func GenerateJWT(userID uint) (string, error) {
+func GenerateJWT(userID uint, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token valid for 72 hours
-		"iat":     time.Now().Unix(),                     // Issued at
+		"exp":     time.Now().Add(duration).Unix(),
+		"iat":     time.Now().Unix(), // Issued at
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
