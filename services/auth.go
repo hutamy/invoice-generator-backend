@@ -12,6 +12,7 @@ type AuthService interface {
 	SignUp(req dto.SignUpRequest) (models.User, error)
 	SignIn(email, password string) (models.User, error)
 	GetUserByID(id uint) (*models.User, error)
+	UpdateUser(req dto.UpdateUserRequest) error
 }
 
 type authService struct {
@@ -78,4 +79,45 @@ func (s *authService) SignIn(email, password string) (models.User, error) {
 
 func (s *authService) GetUserByID(id uint) (*models.User, error) {
 	return s.authRepo.GetUserByID(id)
+}
+
+func (s *authService) UpdateUser(req dto.UpdateUserRequest) error {
+	existingUser, err := s.authRepo.GetUserByID(req.UserID)
+	if err != nil {
+		return err
+	}
+
+	if existingUser == nil {
+		return errors.ErrUserNotFound
+	}
+
+	if req.Name != nil {
+		existingUser.Name = *req.Name
+	}
+
+	if req.Email != nil {
+		existingUser.Email = *req.Email
+	}
+
+	if req.Address != nil {
+		existingUser.Address = *req.Address
+	}
+
+	if req.Phone != nil {
+		existingUser.Phone = *req.Phone
+	}
+
+	if req.BankName != nil {
+		existingUser.BankName = *req.BankName
+	}
+
+	if req.BankAccountName != nil {
+		existingUser.BankAccountName = *req.BankAccountName
+	}
+
+	if req.BankAccountNumber != nil {
+		existingUser.BankAccountNumber = *req.BankAccountNumber
+	}
+
+	return s.authRepo.UpdateUser(existingUser)
 }

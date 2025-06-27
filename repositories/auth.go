@@ -11,6 +11,7 @@ type AuthRepository interface {
 	CreateUser(user *models.User) error
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByID(id uint) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type authRepository struct {
@@ -43,4 +44,17 @@ func (r *authRepository) GetUserByID(id uint) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *authRepository) UpdateUser(user *models.User) error {
+	res := r.db.Save(user)
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return errors.New("user not found")
+	}
+
+	return nil
 }

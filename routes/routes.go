@@ -49,8 +49,10 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	protected := v1.Group("/protected")
 	protected.Use(middleware.JWTMiddleware)
 
+	protected.GET("/me", authController.Me)
+	protected.PUT("/me", authController.UpdateUser)
+
 	authPrivateRoutes := protected.Group("/auth")
-	authPrivateRoutes.GET("/me", authController.Me)
 	authPrivateRoutes.POST("/refresh-token", authController.RefreshToken)
 
 	clientRoutes := protected.Group("/clients")

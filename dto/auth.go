@@ -18,6 +18,7 @@ type SignInRequest struct {
 
 type UpdateUserRequest struct {
 	Name              *string `json:"name"`
+	Email             *string `json:"email" validate:"omitempty,email"` // Validate email format
 	Address           *string `json:"address"`
 	Phone             *string `json:"phone" validate:"omitempty,e164"` // Validate phone format (E.164)
 	BankName          *string `json:"bank_name"`
