@@ -51,10 +51,16 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 		return utils.Response(ctx, http.StatusBadRequest, errors.ErrInvalidDateFormat.Error(), nil)
 	}
 
+	issueDate, err := time.Parse(time.DateOnly, req.IssueDate)
+	if err != nil {
+		return utils.Response(ctx, http.StatusBadRequest, errors.ErrInvalidDateFormat.Error(), nil)
+	}
+
 	invoice := models.Invoice{
 		UserID:        userID,
 		InvoiceNumber: req.InvoiceNumber,
 		ClientID:      req.ClientID,
+		IssueDate:     issueDate,
 		DueDate:       dueDate,
 		Notes:         req.Notes,
 		Status:        "draft", // default status

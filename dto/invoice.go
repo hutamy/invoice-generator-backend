@@ -9,10 +9,11 @@ type InvoiceItemRequest struct {
 type CreateInvoiceRequest struct {
 	ClientID      uint                 `json:"client_id"`
 	DueDate       string               `json:"due_date" validate:"required,datetime=2006-01-02"`
+	IssueDate     string               `json:"issue_date" validate:"required,datetime=2006-01-02"`
 	Items         []InvoiceItemRequest `json:"items" validate:"required,dive"`
 	Notes         string               `json:"notes"`
 	InvoiceNumber string               `json:"invoice_number" validate:"required"`
-	Currency      string               `json:"currency" validate:"required,oneof=USD EUR IDR"`
+	Currency      string               `json:"currency" validate:"required,oneof=USD EUR IDR GBP AUD CAD CHF CNY HKD INR JPY KRW NZD SGD THB"`
 	TaxRate       float64              `json:"tax_rate"`
 	ClientName    string               `json:"client_name" validate:"required"`
 	ClientEmail   string               `json:"client_email" validate:"required,email"`
@@ -30,9 +31,10 @@ type InvoiceItemUpdateRequest struct {
 type UpdateInvoiceRequest struct {
 	ClientID      *uint                      `json:"client_id,omitempty"`
 	DueDate       *string                    `json:"due_date,omitempty" validate:"omitempty,datetime=2006-01-02"`
+	IssueDate     *string                    `json:"issue_date,omitempty" validate:"omitempty,datetime=2006-01-02"`
 	Notes         *string                    `json:"notes,omitempty"`
 	Status        *string                    `json:"status,omitempty"`
-	Currency      *string                    `json:"currency,omitempty" validate:"omitempty,oneof=USD EUR IDR"`
+	Currency      *string                    `json:"currency,omitempty" validate:"omitempty,oneof=USD EUR IDR GBP AUD CAD CHF CNY HKD INR JPY KRW NZD SGD THB"`
 	TaxRate       *float64                   `json:"tax_rate,omitempty"`
 	InvoiceNumber *string                    `json:"invoice_number,omitempty"`
 	Items         []InvoiceItemUpdateRequest `json:"items,omitempty"`
@@ -73,7 +75,8 @@ type UpdateInvoiceStatusRequest struct {
 }
 
 type SummaryInvoice struct {
-	Status   string  `json:"status"`
-	Total    float64 `json:"total"`
 	Currency string  `json:"currency"`
+	Paid     float64 `json:"paid"`
+	Unpaid   float64 `json:"unpaid"`
+	PastDue  float64 `json:"past_due"`
 }

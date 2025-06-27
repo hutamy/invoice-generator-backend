@@ -15,11 +15,12 @@ type Config struct {
 
 	JwtSecret string `env:"JWT_SECRET"`
 
-	PostgresUser     string `env:"POSTGRES_USER"`
-	PostgresPassword string `env:"POSTGRES_PASSWORD"`
-	PostgresHost     string `env:"POSTGRES_HOST"`
-	PostgresPort     int    `env:"POSTGRES_PORT" envDefault:"5432"`
-	PostgresDB       string `env:"POSTGRES_DB"`
+	PostgresUser       string `env:"POSTGRES_USER"`
+	PostgresPassword   string `env:"POSTGRES_PASSWORD"`
+	PostgresHost       string `env:"POSTGRES_HOST"`
+	PostgresPort       int    `env:"POSTGRES_PORT" envDefault:"5432"`
+	PostgresDB         string `env:"POSTGRES_DB"`
+	ExchangeRateAPIUrl string `env:"EXCHANGE_RATE_API_URL"`
 }
 
 var (

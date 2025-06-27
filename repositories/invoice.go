@@ -70,6 +70,15 @@ func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest
 		invoice.DueDate = dueDate
 	}
 
+	if req.IssueDate != nil {
+		issueDate, err := time.Parse(time.DateOnly, *req.IssueDate)
+		if err != nil {
+			return errors.ErrInvalidDateFormat
+		}
+
+		invoice.IssueDate = issueDate
+	}
+
 	if req.Notes != nil {
 		invoice.Notes = *req.Notes
 	}
@@ -201,42 +210,31 @@ func (r *invoiceRepository) UpdateInvoiceStatus(id uint, status string) error {
 
 func (r *invoiceRepository) InvoiceSummary(userID uint) ([]dto.SummaryInvoice, error) {
 	var summaries []dto.SummaryInvoice
-	var currency string
-	var err error
 
-	currency, err = r.GetCurrency(userID)
-	if err != nil {
-		currency = "IDR" // Default to IDR if no currency found
+	var currencies []string
+	r.db.Model(&models.Invoice{}).
+		Where("user_id = ?", userID).
+		Select("DISTINCT currency").Pluck("currency", &currencies)
+
+	for _, currency := range currencies {
+		summary := dto.SummaryInvoice{Currency: currency}
+		r.db.Model(&models.Invoice{}).
+			Where("user_id = ? AND status = ? AND currency = ?", userID, "paid", currency).
+			Select("SUM(total) as total").
+			Scan(&summary.Paid)
+
+		r.db.Model(&models.Invoice{}).
+			Where("user_id = ? AND status IN ? AND currency = ?", userID, []string{"draft", "open"}, currency).
+			Select("SUM(total) as total").
+			Scan(&summary.Unpaid)
+
+		r.db.Model(&models.Invoice{}).
+			Where("user_id = ? AND status = ? AND currency = ?", userID, "past_due", currency).
+			Select("SUM(total) as total").
+			Scan(&summary.PastDue)
+
+		summaries = append(summaries, summary)
 	}
 
-	paidSummary := dto.SummaryInvoice{Status: "paid", Total: 0, Currency: currency}
-	r.db.Model(&models.Invoice{}).
-		Where("user_id = ? AND status = ?", userID, "paid").
-		Select("SUM(total) as total").
-		Scan(&paidSummary.Total)
-	summaries = append(summaries, paidSummary)
-
-	unpaidSummary := dto.SummaryInvoice{Status: "unpaid", Total: 0, Currency: currency}
-	r.db.Model(&models.Invoice{}).
-		Where("user_id = ? AND status IN ?", userID, []string{"draft", "open"}).
-		Select("SUM(total) as total").
-		Scan(&unpaidSummary.Total)
-	summaries = append(summaries, unpaidSummary)
-
-	pastDueSummary := dto.SummaryInvoice{Status: "past due", Total: 0, Currency: currency}
-	r.db.Model(&models.Invoice{}).
-		Where("user_id = ? AND status = ?", userID, "past due").
-		Select("SUM(total) as total").
-		Scan(&pastDueSummary.Total)
-	summaries = append(summaries, pastDueSummary)
 	return summaries, nil
-}
-
-func (r *invoiceRepository) GetCurrency(userID uint) (string, error) {
-	var userInvoice models.Invoice
-	if err := r.db.First(&userInvoice, "user_id = ?", userID).Error; err != nil {
-		return "", err
-	}
-
-	return userInvoice.Currency, nil
 }
