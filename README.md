@@ -17,20 +17,6 @@ A self-hosted, developer-friendly backend API for freelancers to manage clients 
 
 ---
 
-## 📦 Tech Stack
-
-| Component     | Tool                    |
-| ------------- | ----------------------- |
-| Language      | Go (Golang)             |
-| Web Framework | Echo                    |
-| DB            | PostgreSQL (via GORM)   |
-| PDF Engine    | chromedp + Go templates |
-| Auth          | JWT                     |
-| Docs          | Swag + Swagger UI       |
-| Dev Tools     | Docker, docker-compose  |
-
----
-
 ## ⚙️ Setup
 
 ### 1. Clone the repo
@@ -304,7 +290,3 @@ curl --location 'http://localhost:8080/v1/public/invoices/generate-pdf' \
     "tax_rate": 10
 }'
 ```
-
-## 📄 License
-
-MIT. Feel free to use, modify, or contribute!

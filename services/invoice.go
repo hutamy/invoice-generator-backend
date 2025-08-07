@@ -120,11 +120,13 @@ func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceR
 	}
 
 	for i, item := range req.Items {
-		invoice.Subtotal += float64(item.Quantity) * item.UnitPrice
+		total := float64(item.Quantity) * item.UnitPrice
+		invoice.Subtotal += total
 		invoice.Items[i] = models.InvoiceItem{
 			Description: item.Description,
 			Quantity:    item.Quantity,
 			UnitPrice:   item.UnitPrice,
+			Total:       total,
 		}
 	}
 
