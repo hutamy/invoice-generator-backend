@@ -8,7 +8,7 @@ A self-hosted, developer-friendly backend API for freelancers to manage clients 
 
 - 🧑‍💼 **User Authentication** (JWT)
 - 👥 **Client Management** (CRUD)
-- 💸 **Invoice Management** (CRUD, partial updates)
+- 💸 **Invoice Management** (CRUD)
 - 📄 **PDF Invoice Generation** using HTML templates
 - 🧾 **Swagger/OpenAPI Docs**
 - 🛡️ Secure & modular architecture (repository + service layers)

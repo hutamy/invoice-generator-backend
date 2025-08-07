@@ -336,6 +336,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/protected/invoices/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves a summary of invoices for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Get invoice summary",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/protected/invoices/{id}": {
             "get": {
                 "security": [
@@ -451,6 +485,59 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes an invoice by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Delete an invoice",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Invoice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
             }
         },
         "/v1/protected/me": {
@@ -483,6 +570,166 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update user details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Update User",
+                "parameters": [
+                    {
+                        "description": "Update User Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/protectted/invoices/{id}/pdf": {
+            "post": {
+                "description": "Generates and downloads the PDF for a given invoice ID",
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "summary": "Download invoice PDF",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Invoice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/auth/refresh-token": {
+            "post": {
+                "description": "Refresh access token using a valid refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh Token",
+                "parameters": [
+                    {
+                        "description": "Refresh Token Request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.GenericResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/utils.GenericResponse"
                         }
@@ -648,53 +895,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/v1/public/invoices/{id}/pdf": {
-            "get": {
-                "description": "Generates and downloads the PDF for a given invoice ID",
-                "produces": [
-                    "application/pdf"
-                ],
-                "tags": [
-                    "invoices"
-                ],
-                "summary": "Download invoice PDF",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Invoice ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.GenericResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -724,20 +924,38 @@ const docTemplate = `{
         "dto.CreateInvoiceRequest": {
             "type": "object",
             "required": [
-                "client_id",
+                "client_address",
+                "client_email",
+                "client_name",
+                "client_phone",
                 "due_date",
                 "invoice_number",
-                "items",
-                "tax_rate"
+                "issue_date",
+                "items"
             ],
             "properties": {
+                "client_address": {
+                    "type": "string"
+                },
+                "client_email": {
+                    "type": "string"
+                },
                 "client_id": {
                     "type": "integer"
+                },
+                "client_name": {
+                    "type": "string"
+                },
+                "client_phone": {
+                    "type": "string"
                 },
                 "due_date": {
                     "type": "string"
                 },
                 "invoice_number": {
+                    "type": "string"
+                },
+                "issue_date": {
                     "type": "string"
                 },
                 "items": {
@@ -809,6 +1027,7 @@ const docTemplate = `{
                     "minimum": 1
                 },
                 "unit_price": {
+                    "description": "Ensure unit price is greater than 0",
                     "type": "number"
                 }
             }
@@ -832,7 +1051,19 @@ const docTemplate = `{
                     "minimum": 1
                 },
                 "unit_price": {
+                    "description": "Ensure unit price is greater than 0",
                     "type": "number"
+                }
+            }
+        },
+        "dto.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
                 }
             }
         },
@@ -942,6 +1173,7 @@ const docTemplate = `{
                     "minLength": 6
                 },
                 "phone": {
+                    "description": "Validate phone format (E.164)",
                     "type": "string"
                 }
             }
@@ -972,13 +1204,28 @@ const docTemplate = `{
         "dto.UpdateInvoiceRequest": {
             "type": "object",
             "properties": {
+                "client_address": {
+                    "type": "string"
+                },
+                "client_email": {
+                    "type": "string"
+                },
                 "client_id": {
                     "type": "integer"
+                },
+                "client_name": {
+                    "type": "string"
+                },
+                "client_phone": {
+                    "type": "string"
                 },
                 "due_date": {
                     "type": "string"
                 },
                 "invoice_number": {
+                    "type": "string"
+                },
+                "issue_date": {
                     "type": "string"
                 },
                 "items": {
@@ -995,6 +1242,35 @@ const docTemplate = `{
                 },
                 "tax_rate": {
                     "type": "number"
+                }
+            }
+        },
+        "dto.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bank_account_name": {
+                    "type": "string"
+                },
+                "bank_account_number": {
+                    "description": "Validate bank account number format (numeric and \u003e 0)",
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "description": "Validate email format",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "Validate phone format (E.164)",
+                    "type": "string"
                 }
             }
         },

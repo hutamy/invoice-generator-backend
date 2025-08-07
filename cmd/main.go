@@ -30,7 +30,8 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 func main() {
 	cfg := config.LoadEnv()
-	dbUrl := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+	dbUrl := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		cfg.PostgresHost,
 		cfg.PostgresUser,
 		cfg.PostgresPassword,
@@ -41,7 +42,6 @@ func main() {
 
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
