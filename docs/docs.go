@@ -725,7 +725,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "client_id",
-                "currency",
                 "due_date",
                 "invoice_number",
                 "items",
@@ -734,14 +733,6 @@ const docTemplate = `{
             "properties": {
                 "client_id": {
                     "type": "integer"
-                },
-                "currency": {
-                    "type": "string",
-                    "enum": [
-                        "USD",
-                        "EUR",
-                        "IDR"
-                    ]
                 },
                 "due_date": {
                     "type": "string"
@@ -766,7 +757,6 @@ const docTemplate = `{
         "dto.GeneratePublicInvoiceRequest": {
             "type": "object",
             "required": [
-                "currency",
                 "due_date",
                 "invoice_number",
                 "issue_date",
@@ -774,14 +764,6 @@ const docTemplate = `{
                 "sender"
             ],
             "properties": {
-                "currency": {
-                    "type": "string",
-                    "enum": [
-                        "USD",
-                        "EUR",
-                        "IDR"
-                    ]
-                },
                 "due_date": {
                     "type": "string"
                 },
@@ -992,9 +974,6 @@ const docTemplate = `{
             "properties": {
                 "client_id": {
                     "type": "integer"
-                },
-                "currency": {
-                    "type": "string"
                 },
                 "due_date": {
                     "type": "string"

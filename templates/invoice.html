@@ -240,8 +240,8 @@
           <tr>
             <td>{{ .Description }}</td>
             <td>{{ .Quantity }}</td>
-            <td>{{ $.Invoice.Currency }} {{ humanize .UnitPrice }}</td>
-            <td>{{ $.Invoice.Currency }} {{ humanize .Total }}</td>
+            <td>IDR {{ humanize .UnitPrice }}</td>
+            <td>IDR {{ humanize .Total }}</td>
           </tr>
           {{ end }}
         </tbody>
@@ -250,18 +250,16 @@
       <div class="invoice-totals">
         <div class="invoice-subtotal">
           <span>Subtotal:</span>
-          <span
-            >{{ .Invoice.Currency }} {{ humanize .Invoice.Subtotal }}</span
-          >
+          <span>IDR {{ humanize .Invoice.Subtotal }}</span>
         </div>
         <div class="invoice-tax">
           <span>Tax ({{ printf "%.1f" .Invoice.TaxRate }}%):</span>
-          <span>{{ .Invoice.Currency }} {{ humanize .Invoice.Tax }}</span>
+          <span>IDR {{ humanize .Invoice.Tax }}</span>
         </div>
         <div class="invoice-total">
           <span class="invoice-total-label">Total:</span>
           <span class="invoice-total-amount"
-            >{{ .Invoice.Currency }} {{ humanize .Invoice.Total }}</span
+            >IDR {{ humanize .Invoice.Total }}</span
           >
         </div>
       </div>

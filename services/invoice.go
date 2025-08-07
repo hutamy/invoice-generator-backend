@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"html/template"
 	"strconv"
 	"time"
@@ -14,7 +13,6 @@ import (
 	"github.com/hutamy/invoice-generator-backend/dto"
 	"github.com/hutamy/invoice-generator-backend/models"
 	"github.com/hutamy/invoice-generator-backend/repositories"
-	"github.com/hutamy/invoice-generator-backend/utils"
 )
 
 type InvoiceService interface {
@@ -117,7 +115,6 @@ func (s *invoiceService) GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceR
 		IssueDate:     issueDate,
 		DueDate:       dueDate,
 		Notes:         req.Notes,
-		Currency:      req.Currency,
 		TaxRate:       req.TaxRate,
 		Items:         make([]models.InvoiceItem, len(req.Items)),
 	}
@@ -208,34 +205,9 @@ func (s *invoiceService) UpdateInvoiceStatus(id uint, status string) error {
 }
 
 func (s *invoiceService) InvoiceSummary(userID uint) (dto.SummaryInvoice, error) {
-	summaries, err := s.invoiceRepo.InvoiceSummary(userID)
+	summary, err := s.invoiceRepo.InvoiceSummary(userID)
 	if err != nil {
 		return dto.SummaryInvoice{}, err
-	}
-
-	summary := dto.SummaryInvoice{
-		Currency: "IDR",
-		Paid:     0,
-		Unpaid:   0,
-		PastDue:  0,
-	}
-	if len(summaries) > 0 {
-		for _, s := range summaries {
-			if s.Currency == "IDR" {
-				summary.Paid += s.Paid
-				summary.Unpaid += s.Unpaid
-				summary.PastDue += s.PastDue
-			} else {
-				rate, err := utils.GetExchangeRate(s.Currency, "IDR")
-				if err == nil && rate > 0 {
-					summary.Paid += s.Paid * rate
-					summary.Unpaid += s.Unpaid * rate
-					summary.PastDue += s.PastDue * rate
-				} else {
-					fmt.Println("Error getting exchange rate for", s.Currency, "to IDR:", err)
-				}
-			}
-		}
 	}
 
 	return summary, nil

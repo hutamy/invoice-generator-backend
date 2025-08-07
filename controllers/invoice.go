@@ -64,7 +64,6 @@ func (c *InvoiceController) CreateInvoice(ctx echo.Context) error {
 		DueDate:       dueDate,
 		Notes:         req.Notes,
 		Status:        "draft", // default status
-		Currency:      req.Currency,
 		TaxRate:       req.TaxRate,
 		ClientName:    req.ClientName,
 		ClientEmail:   req.ClientEmail,

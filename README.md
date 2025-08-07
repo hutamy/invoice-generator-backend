@@ -195,7 +195,6 @@ curl --location 'http://localhost:8080/v1/protected/invoices' \
     "invoice_number": "INV 30/VI/2025",
     "due_date": "2025-06-30",
     "notes": "Make payment befor 30 days",
-    "currency": "IDR",
     "tax_rate": 10,
     "items": [
         {
@@ -232,7 +231,6 @@ curl --location --request PUT 'http://localhost:8080/v1/protected/invoices/1' \
     "invoice_number": "INV 30/VI/2025",
     "due_date": "2025-06-30",
     "notes": "Make payment befor 30 days",
-    "currency": "IDR",
     "tax_rate": 10,
     "status": "sent",
     "items": [
@@ -281,7 +279,6 @@ curl --location 'http://localhost:8080/v1/public/invoices/generate-pdf' \
     "due_date": "2025-06-30",
     "notes": "Make payment befor 30 days",
     "issue_date": "2025-06-01",
-    "currency": "IDR",
     "sender": {
         "name": "Jane Doe",
         "email": "jane@example.com",
