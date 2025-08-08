@@ -47,22 +47,47 @@ func (c *ClientController) CreateClient(ctx echo.Context) error {
 }
 
 // @Summary      Get all clients
-// @Description  Retrieves all clients for the authenticated user
+// @Description  Retrieves all clients for the authenticated user with pagination (default: page=1, page_size=10)
 // @Tags         clients
 // @Produce      json
 // @Security     BearerAuth
+// @Param        page      query     int     false  "Page number (default: 1)"
+// @Param        page_size query     int     false  "Page size (default: 10, max: 100)"
+// @Param        search    query     string  false  "Search term for filtering clients"
+// @Param        all       query     bool    false  "Return all clients without pagination (use with caution)"
 // @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
 // @Router       /v1/protected/clients [get]
 func (c *ClientController) GetAllClients(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
-	clients, err := c.clientService.GetAllClientsByUserID(userID)
+	// Check if user explicitly wants all clients without pagination
+	all := ctx.QueryParam("all") == "true"
+	if all {
+		// Use non-paginated response (backward compatibility)
+		clients, err := c.clientService.GetAllClientsByUserID(userID)
+		if err != nil {
+			return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+		}
+		return utils.Response(ctx, http.StatusOK, "All clients retrieved successfully", clients)
+	}
+
+	// Always use pagination by default
+	var paginationReq dto.PaginationRequest
+	ctx.Bind(&paginationReq) // Bind query parameters, ignore errors
+
+	req := dto.GetClientsRequest{
+		UserID:            userID,
+		PaginationRequest: paginationReq,
+	}
+
+	paginatedClients, err := c.clientService.GetAllClientsByUserIDWithPagination(req)
 	if err != nil {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return utils.Response(ctx, http.StatusOK, "Clients retrieved successfully", clients)
+	return utils.Response(ctx, http.StatusOK, "Clients retrieved successfully", paginatedClients)
 }
 
 // @Summary      Get client by ID

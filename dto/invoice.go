@@ -76,3 +76,9 @@ type SummaryInvoice struct {
 	Unpaid  float64 `json:"unpaid"`
 	PastDue float64 `json:"past_due"`
 }
+
+type GetInvoicesRequest struct {
+	UserID uint `json:"-"`
+	PaginationRequest
+	Status string `query:"status"` // Filter by status (draft, open, paid, past_due)
+}

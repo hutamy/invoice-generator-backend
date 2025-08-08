@@ -13,12 +13,14 @@ import (
 	"github.com/hutamy/invoice-generator-backend/dto"
 	"github.com/hutamy/invoice-generator-backend/models"
 	"github.com/hutamy/invoice-generator-backend/repositories"
+	"github.com/hutamy/invoice-generator-backend/utils"
 )
 
 type InvoiceService interface {
 	CreateInvoice(invoice *models.Invoice) error
 	GetInvoiceByID(id uint) (*models.Invoice, error)
 	ListInvoiceByUserID(userID uint) ([]models.Invoice, error)
+	ListInvoiceByUserIDWithPagination(req dto.GetInvoicesRequest) (utils.PaginatedResponse, error)
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	GenerateInvoicePDF(invoiceID uint) ([]byte, error)
 	GeneratePublicInvoicePDF(req dto.GeneratePublicInvoiceRequest) ([]byte, error)
@@ -66,6 +68,27 @@ func (s *invoiceService) GetInvoiceByID(id uint) (*models.Invoice, error) {
 
 func (s *invoiceService) ListInvoiceByUserID(userID uint) ([]models.Invoice, error) {
 	return s.invoiceRepo.ListInvoiceByUserID(userID)
+}
+
+func (s *invoiceService) ListInvoiceByUserIDWithPagination(req dto.GetInvoicesRequest) (utils.PaginatedResponse, error) {
+	// Set default values for pagination
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 {
+		req.PageSize = 10
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
+
+	invoices, totalItems, err := s.invoiceRepo.ListInvoiceByUserIDWithPagination(req)
+	if err != nil {
+		return utils.PaginatedResponse{}, err
+	}
+
+	pagination := utils.CalculatePagination(req.Page, req.PageSize, totalItems)
+	return utils.PaginatedData(invoices, pagination), nil
 }
 
 func (s *invoiceService) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error {

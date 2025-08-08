@@ -115,23 +115,52 @@ func (c *InvoiceController) GetInvoiceByID(ctx echo.Context) error {
 }
 
 // @Summary      List invoices by user
-// @Description  Retrieves all invoices for the authenticated user
+// @Description  Retrieves all invoices for the authenticated user with pagination (default: page=1, page_size=10)
 // @Tags         invoices
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
+// @Param        page      query     int     false  "Page number (default: 1)"
+// @Param        page_size query     int     false  "Page size (default: 10, max: 100)"
+// @Param        search    query     string  false  "Search term for filtering invoices"
+// @Param        status    query     string  false  "Filter by status (draft, open, paid, past_due)"
+// @Param        all       query     bool    false  "Return all invoices without pagination (use with caution)"
 // @Success      200  {object}  utils.GenericResponse
+// @Failure      400  {object}  utils.GenericResponse
 // @Failure      500  {object}  utils.GenericResponse
 // @Router       /v1/protected/invoices [get]
 func (c *InvoiceController) ListInvoicesByUserID(ctx echo.Context) error {
 	userID := ctx.Get("user_id").(uint)
 
-	invoices, err := c.invoiceService.ListInvoiceByUserID(userID)
+	// Check if user explicitly wants all invoices without pagination
+	all := ctx.QueryParam("all") == "true"
+	if all {
+		// Use non-paginated response (backward compatibility)
+		invoices, err := c.invoiceService.ListInvoiceByUserID(userID)
+		if err != nil {
+			return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
+		}
+		return utils.Response(ctx, http.StatusOK, "All invoices retrieved successfully", invoices)
+	}
+
+	// Always use pagination by default
+	var paginationReq dto.PaginationRequest
+	ctx.Bind(&paginationReq) // Bind query parameters, ignore errors
+
+	status := ctx.QueryParam("status")
+
+	req := dto.GetInvoicesRequest{
+		UserID:            userID,
+		PaginationRequest: paginationReq,
+		Status:            status,
+	}
+
+	paginatedInvoices, err := c.invoiceService.ListInvoiceByUserIDWithPagination(req)
 	if err != nil {
 		return utils.Response(ctx, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return utils.Response(ctx, http.StatusOK, "Invoices retrieved successfully", invoices)
+	return utils.Response(ctx, http.StatusOK, "Invoices retrieved successfully", paginatedInvoices)
 }
 
 // @Summary      Update an invoice

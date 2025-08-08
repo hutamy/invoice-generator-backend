@@ -4,11 +4,13 @@ import (
 	"github.com/hutamy/invoice-generator-backend/dto"
 	"github.com/hutamy/invoice-generator-backend/models"
 	"github.com/hutamy/invoice-generator-backend/repositories"
+	"github.com/hutamy/invoice-generator-backend/utils"
 )
 
 type ClientService interface {
 	CreateClient(req dto.CreateClientRequest) error
 	GetAllClientsByUserID(userID uint) ([]models.Client, error)
+	GetAllClientsByUserIDWithPagination(req dto.GetClientsRequest) (utils.PaginatedResponse, error)
 	GetClientByID(id, userID uint) (*models.Client, error)
 	UpdateClient(req dto.UpdateClientRequest) error
 	DeleteClient(id, userID uint) error
@@ -35,6 +37,27 @@ func (s *clientService) CreateClient(req dto.CreateClientRequest) error {
 
 func (s *clientService) GetAllClientsByUserID(userID uint) ([]models.Client, error) {
 	return s.clientRepo.GetAllByUserID(userID)
+}
+
+func (s *clientService) GetAllClientsByUserIDWithPagination(req dto.GetClientsRequest) (utils.PaginatedResponse, error) {
+	// Set default values for pagination
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 {
+		req.PageSize = 10
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
+
+	clients, totalItems, err := s.clientRepo.GetAllByUserIDWithPagination(req)
+	if err != nil {
+		return utils.PaginatedResponse{}, err
+	}
+
+	pagination := utils.CalculatePagination(req.Page, req.PageSize, totalItems)
+	return utils.PaginatedData(clients, pagination), nil
 }
 
 func (s *clientService) GetClientByID(id, userID uint) (*models.Client, error) {

@@ -14,6 +14,7 @@ type InvoiceRepository interface {
 	CreateInvoice(invoice *models.Invoice) error
 	GetInvoiceByID(id uint) (*models.Invoice, error)
 	ListInvoiceByUserID(userID uint) ([]models.Invoice, error)
+	ListInvoiceByUserIDWithPagination(req dto.GetInvoicesRequest) ([]models.Invoice, int64, error)
 	UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error
 	DeleteInvoice(id uint) error
 	UpdateInvoiceStatus(id uint, status string) error
@@ -48,6 +49,44 @@ func (r *invoiceRepository) ListInvoiceByUserID(userID uint) ([]models.Invoice, 
 	}
 
 	return invoices, nil
+}
+
+func (r *invoiceRepository) ListInvoiceByUserIDWithPagination(req dto.GetInvoicesRequest) ([]models.Invoice, int64, error) {
+	var invoices []models.Invoice
+	var totalItems int64
+
+	query := r.db.Where("user_id = ?", req.UserID)
+
+	// Add status filter if provided
+	if req.Status != "" {
+		query = query.Where("status = ?", req.Status)
+	}
+
+	// Add search functionality if search term is provided
+	if req.Search != "" {
+		searchTerm := "%" + req.Search + "%"
+		query = query.Where("invoice_number ILIKE ? OR client_name ILIKE ? OR client_email ILIKE ? OR notes ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm)
+	}
+
+	// Count total items
+	if err := query.Model(&models.Invoice{}).Count(&totalItems).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Apply pagination
+	offset := (req.Page - 1) * req.PageSize
+	err := query.Preload("Items").
+		Order("created_at DESC").
+		Offset(offset).
+		Limit(req.PageSize).
+		Find(&invoices).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return invoices, totalItems, nil
 }
 
 func (r *invoiceRepository) UpdateInvoice(id uint, req *dto.UpdateInvoiceRequest) error {
